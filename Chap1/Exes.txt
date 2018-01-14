@@ -1,0 +1,352 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-01-14T10:44:36+08:00
+
+====== Exes ======
+Created 星期日 14 一月 2018
+
+===== 1 =====
+Write a program to read 10 integers. Display these
+numbers by printing three numbers in a line
+separated by commas.
+
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-8.
+//
+#include <stdio.h>
+
+void getNumbers(int Numbers[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("Enter a number: ");
+        scanf("%d", &Numbers[i]);
+    }
+}
+
+void getNumbersP(int *Numbers, int n) {
+    for (int i = 0; i < n; i++) {
+        printf("Enter a number: ");
+        scanf("%d", Numbers);
+        Numbers++;
+    }
+}
+
+void printIntArray(int Numbers[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d", Numbers[i]);
+        if ((i + 1) % 3 == 0) { printf("\n"); }
+        else { printf(","); }
+    }
+}
+
+
+int main() {
+    int n;
+    n = 3;
+    int Numbers[n];
+    getNumbers(Numbers, n);
+    printIntArray(Numbers, n);
+    getNumbersP(Numbers, n);
+    printIntArray(Numbers, n);
+    return 0;
+}
+}}}
+
+
+
+===== 2 =====
+Write a program to print the count of even numbers
+between 1–200. Also print their sum.
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-8.
+//
+
+#include <stdio.h>
+
+
+int main(){
+    int count = 0;
+    int sum = 0;
+    for(int i=1; i<201; i++){
+        if(i%2 == 0){
+            count += 1;
+            sum += i;
+        }
+    }
+    printf("The sum is: %d.", sum);
+    return 0;
+}
+}}}
+
+
+==== 3 ====
+Write a program to count the number of vowels
+in a text.
+
+学习如何直接输入字符串到char[n]
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-8.
+//
+
+#include <stdio.h>
+
+# define MAX_CHAR 100
+
+int isVowels(char c);
+
+int main() {
+    char Mstring[MAX_CHAR];
+    printf("Enter a string: ");
+    fgets(Mstring, sizeof(Mstring), stdin);  // better
+    int count = 0;
+    for (int i = 0; i < sizeof(Mstring); i++) {
+        if (Mstring[i] == '\n') break;
+        count += isVowels(Mstring[i]);
+    }
+    printf("There are %d vowels in the string.", count);
+    return 0;
+}
+
+
+int isVowels(char c) {
+    char voWels[10] = {'A', 'a', 'E', 'e', 'I', 'i', 'O', 'o', 'U', 'u'};
+    for (int i = 0; i < 10; i++) {
+        if (c == voWels[i]) return 1;
+    }
+    return 0;
+
+}
+}}}
+
+
+===== 4 =====
+Write a program to read the address of a user. Dis-
+play the result by breaking it in multiple lines.
+
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-8.
+//
+
+#include <malloc.h>
+# define MAX_CHAR 100
+
+// test data:Shandong China
+int main(){
+    char Address[MAX_CHAR];
+    printf("Enter the address: ");
+    fgets(Address, sizeof(Address), stdin);
+    for(int i=0; i<MAX_CHAR; i++){
+        if(Address[i] == '\n') return 0;
+        if(Address[i] == ' ') {printf("\n");continue;}
+        printf("%c", Address[i]);
+    }
+    return 0;
+}
+}}}
+
+
+===== 5 =====
+Write a program to read two floating point
+numbers. Add these numbers and assign the result
+to an integer. Finally, display the value of all the
+three variables.
+
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-9.
+//
+
+#include <stdio.h>
+
+int main(){
+    float fa;
+    printf("Enter a float: " );
+    scanf("%f", &fa);
+    float fb;
+    printf("Enter a float: " );
+    scanf("%f", &fb);
+
+    int ic;
+    ic = fa + fb;
+
+    printf("fa=%.2f fb=%.2f ic=%i", fa, fb, ic);
+    return 0;
+
+}
+}}}
+
+
+===== 6 =====
+ Write a program to read a floating point number.
+Display the rightmost digit of the integral part of
+the number.
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-9.
+//
+
+#include <limits.h>
+#include <stdio.h>
+
+int main(){
+    float fa;
+    printf("Enter a float: " );
+    scanf("%f", &fa);
+    int int_fa;
+    int_fa = (int)fa;
+    int i;
+    i = int_fa%10;
+    printf("%d  %d\n", int_fa, i);
+    printf("%d", INT_MAX);
+    return 0;
+
+}
+
+}}}
+
+
+===== 9 =====
+Write a program to prepare a grocery bill. Enter
+the name of the items purchased, quantity in which
+it is purchased, and its price per unit. Then display
+the bill in the following format:
+************ B I L L ************
+Item Quantity Price Amount
+––––––––––––––––––––––––––––––––––––––––––––––––
+–––––––––––––––––––––––––––––––––––––––––––––––––
+Total Amount to be paid
+––––––––––––––––––––––––––––––––––––––––––––––––
+
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-12.
+//
+
+
+#include <stdio.h>
+#include <malloc.h>
+
+#define INF 1000000000
+
+void anyItem(char **mstring, float *quantity, float *price, float *amount, float *Amount, FILE **fout) {
+    fprintf(*fout, "––––––––––––––––––––––––––––––––––––––––––––––––\n");
+    printf("Enter item name:");
+    scanf("%s", *mstring);
+
+    printf("Enter quantity:");
+    scanf("%f", quantity);
+
+    printf("Enter price per unit:");
+    scanf("%f", price);
+    *amount = (*quantity) * (*price);
+    *Amount += *amount;
+    fprintf(*fout, "  %s       %.3f       %.3f       %.3f    \n", *mstring, *quantity, *price, *amount);
+
+}
+
+
+int main() {
+    float Quantity;
+    float Price;
+    float amount;
+    float Amount;
+    char *Mstring;
+    Mstring = malloc(100);
+
+    FILE *fout;
+    fout = fopen("/home/shensir/Documents/MyPrograming/C/Cprojects/DS/chap1/bill.txt", "w");
+
+    int Items;
+    printf("Enter the number of items: ");
+    scanf("%d", &Items);
+
+    // print title
+    fprintf(fout, "******************* B I L L *******************\n");
+    fprintf(fout, "  Item     Quantity     Price     Amount  \n");
+
+
+    for (int i = 0; i < Items; i++) {
+        anyItem(&Mstring, &Quantity, &Price, &amount, &Amount, &fout);
+    }
+    fprintf(fout, "––––––––––––––––––––––––––––––––––––––––––––––––\n");
+    fprintf(fout, "Total amount to be paid: %f\n", Amount);
+    fprintf(fout, "––––––––––––––––––––––––––––––––––––––––––––––––\n");
+
+    free(Mstring);
+    fclose(fout);
+    return 0;
+
+}
+}}}
+
+测试：
+
+{{{code: lang="c" linenumbers="True"
+Enter the number of items: 3
+Enter item name:potato
+Enter quantity:3
+Enter price per unit:1.4
+Enter item name:apple
+Enter quantity:2
+Enter price per unit:3.2
+Enter item name:banana
+Enter quantity:5
+Enter price per unit:1.3
+}}}
+
+输出：
+{{{code: lang="c" linenumbers="True"
+******************* B I L L *******************
+  Item     Quantity     Price     Amount  
+––––––––––––––––––––––––––––––––––––––––––––––––
+  potato       3.000       1.400       4.200    
+––––––––––––––––––––––––––––––––––––––––––––––––
+  apple       2.000       3.200       6.400    
+––––––––––––––––––––––––––––––––––––––––––––––––
+  banana       5.000       1.300       6.500    
+––––––––––––––––––––––––––––––––––––––––––––––––
+Total amount to be paid: 17.100000
+––––––––––––––––––––––––––––––––––––––––––––––––
+}}}
+
+
+==== 17 ====
+
+Write a program to read a character and print it.
+Also print its ASCII value. If the character is in
+lower case, print it in upper case and vice versa.
+Repeat the process until a ‘*’ is entered.
+
+{{{code: lang="c" linenumbers="True"
+//
+// Created by shensir on 17-12-13.
+//
+
+#include <stdio.h>
+void Mtask(char c);
+
+// test data: AabB
+// note:ascii code of space is 32
+int main(){
+    char c;
+    while(scanf("%c", &c) == 1){
+        if(c == '*') break;
+        if(c == '\n') continue;
+        Mtask(c);
+    }
+
+    return 0;
+}
+
+void Mtask(char c){
+    char transc = c;
+    if(c >= 97) transc -= ('a' - 'A');
+    else( transc += ('a' - 'A'));
+    printf("%c %d %c\n", c, c, transc);
+}
+
+}}}
+

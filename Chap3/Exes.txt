@@ -1,0 +1,1036 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-01-01T21:06:04+08:00
+
+====== Exes ======
+Created 星期一 01 一月 2018
+
+===== Programming Exercises =====
+
+==== 1. Array Avg&Show ====
+
+Consider an array MARKS[20][5] which stores the
+marks obtained by 20 students in 5 subjects. Now
+write a program to
+	
+ (a)	 find the average marks obtained in each
+subject.
+	
+ (b)	 find the average marks obtained by every
+student.
+	
+ (c)	 find the number of students who have scored
+below 50 in their average.
+	
+ (d)	 display the scores obtained by every student.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void getArray(int row, int col, int Array[row][col]);
+void findColAvg(int row, int col, int Array[row][col], float colAvg[col]);
+void findRowAvg(int row, int col, int Array[row][col], float rowAvg[row]);
+void findAvgBlowNum(int row, float Array[row], float Num);
+void showArrData(int n, float Arr[n]);
+void showMatrixData(int row, int col, int Array[row][col]);
+
+int main(){
+    // Total data of marks
+    int row=2, col=5;
+    int MARKS[row][col];
+    getArray(row, col, MARKS);
+    showMatrixData(row, col, MARKS);
+    // get column average
+    float colAvgData[col];
+    findColAvg(row, col, MARKS, colAvgData);
+    showArrData(col, colAvgData);
+    // get row average
+    float rowAvgData[row];
+    findRowAvg(row, col, MARKS, rowAvgData);
+    showArrData(row, rowAvgData);
+
+    // find below
+    findAvgBlowNum(row, rowAvgData, 50);
+    return 0;
+}
+
+void getArray(int row, int col, int Array[row][col]){
+    printf("Enter the data in the array: ");
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            scanf("%d", &Array[i][j]);
+        }
+    }
+}
+
+void findColAvg(int row, int col, int Array[row][col], float colAvg[col]){
+    float colSum;
+    for (int j = 0; j < col; ++j) {
+        colSum = 0;
+        for (int i = 0; i < row; ++i) {
+            colSum += Array[i][j];
+        }
+        colAvg[j] = colSum/row;
+    }
+}
+
+
+void findRowAvg(int row, int col, int Array[row][col], float rowAvg[col]){
+    float rowSum;
+    for (int i = 0; i < row; ++i) {
+        rowSum = 0;
+        for (int j = 0; j < col; ++j) {
+            rowSum += Array[i][j];
+        }
+        rowAvg[i] = rowSum/col;
+    }
+}
+
+
+void showArrData(int n, float Arr[n]){
+    for (int i = 0; i < n; ++i) {
+        printf("%.2f ", Arr[i]);
+    }
+    printf("\n");
+}
+
+
+void showMatrixData(int row, int col, int Array[row][col]){
+    printf("The Matrix data is: \n");
+    for (int i = 0; i < row; ++i) {
+        printf("\n");
+        for (int j = 0; j < col; ++j) {
+            printf("%d ", Array[i][j]);
+        }
+    }
+    printf("\n");
+}
+
+
+void findAvgBlowNum(int row, float rowArrData[row], float Num){
+    for (int i = 0; i < row; ++i) {
+        if(rowArrData[i] < Num)
+            printf("No.%d ", i+1);
+    }
+}
+
+}}}
+
+
+===== 2 =====
+学习如何选择anchor来去重
+
+Write a program that reads an array of 100
+integers. Display all the pairs of elements whose
+sum is 50.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdbool.h>
+#define MAXN 100
+
+void getArray(int n, int Array[n]);
+bool sumToN(int num1, int num2, int N);
+bool isInPairArray(int smallNum, int length, int *pairArrays);
+int getSmall(int num1, int num2);
+
+int main(){
+    // get raw integers in Arr
+    int n = 10;
+    int Arr[n];
+    getArray(n, Arr);
+    // get pariArrays
+    int length=0;
+    int PairArray[MAXN];
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = i; j < n; ++j) {
+            // get the small
+            int small = getSmall(Arr[i], Arr[j]);
+            // avoid the duplication by using the small num in pair as anchor
+            if (sumToN(Arr[i], Arr[j], 50) && !isInPairArray(small, length, PairArray)) {
+                printf("(%d, %d)", Arr[i], Arr[j]);
+                PairArray[length] = small;
+                length++;
+            }
+        }
+    }
+
+}
+
+void getArray(int n, int Array[n]){
+    printf("Enter Array Data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &Array[i]);
+    }
+}
+
+bool sumToN(int num1, int num2, int N){
+    if((num1+num2) == N) return true;
+    else return false;
+}
+
+bool isInPairArray(int smallNum, int length, int *pairArrays){
+    if(length == 0) return false;
+    for (int i = 0; i < length; ++i) {
+        if(pairArrays[i] == smallNum) return true;
+        else continue;
+    }
+    return false;
+}
+int getSmall(int num1, int num2){
+    if(num1 <= num2) return num1;
+    else return num2;
+}
+}}}
+
+
+===== 3 =====
+Write a program to interchange the second element
+with the second last element.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void getArray(int n, int Arr[n]);
+void interChange(int n, int pos, int Arr[n]);
+void showArray(int n, int Arr[n]);
+
+int main(){
+    int n=10;
+    int Arr[n];
+    getArray(n, Arr);
+    showArray(n, Arr);
+    int pos = 2;
+    interChange(n, pos, Arr);
+    showArray(n, Arr);
+}
+
+void getArray(int n, int Arr[n]){
+    printf("Enter Array Data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &Arr[i]);
+    }
+}
+
+void interChange(int n, int pos, int Arr[n]){
+    int temp = Arr[n-pos];
+    Arr[n-pos] = Arr[pos-1];
+    Arr[pos-1] = temp;
+}
+
+void showArray(int n, int Arr[n]){
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", Arr[i]);
+    }
+    printf("\n");
+}
+}}}
+
+
+===== 4 =====
+Write a program that calculates the sum of squares
+of the elements.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <math.h>
+
+void getArray(int n, int Arr[n]);
+int sumOfSquare(int n, int *Arr);
+void showArray(int n, int Arr[n]);
+
+int main(){
+    int n=10;
+    int Arr[n];
+    getArray(n, Arr);
+    showArray(n, Arr);
+    int sum;
+    sum = sumOfSquare(n, Arr);
+    printf("The sum is %d\n", sum);
+}
+
+void getArray(int n, int Arr[n]){
+    printf("Enter Array Data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &Arr[i]);
+    }
+}
+
+int sumOfSquare(int n, int *Arr){
+    int sum=0;
+    for (int i = 0; i < n; ++i) {
+        sum += pow(Arr[i], 2);
+    }
+    return sum;
+}
+
+void showArray(int n, int Arr[n]){
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", Arr[i]);
+    }
+    printf("\n");
+}
+}}}
+
+
+===== 5&6&7 =====
+	5. Write a program to compute the sum and mean of
+the elements of a two-dimensional array.
+	 6.	Write a program to read and display a square
+(using functions).
+	 7.	Write a program that computes the sum of the
+elements that are stored on the main diagonal of
+a matrix using pointers.
+	注意初始化的问题。
+	累加的时候，不初始化会出现问题；然后，二维数组也可能会有问题。
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void readMatrix(int row, int col, int Matrix[row][col]);
+void showMatrix(int row, int col, int Matrix[row][col]);
+void showFloatMatrix(int row, int col, float Matrix[row][col]);
+void showArrayData(int n, float Arr[n]);
+
+void getColSumMean(int row, int col, int Matrix[row][col],
+                    float Sum[col], float Mean[col]);
+void getRowSumMean(int row, int col, int Matrix[row][col],
+                   float Sum[row], float Mean[row]);
+int getDiagSum(int row, int col, int Matrix[row][col]);
+void getSumarryData(int row, int col, int Matrix[row][col],
+                    float colSum[col], float colMean[col],
+                    float rowSum[row], float rowMean[row],
+                    float SummaryData[row+2][col+2]);
+
+int main(){
+    // get raw matrix
+    int row, col;
+    row = col = 3;
+    int M[row][col];
+    readMatrix(row, col, M);
+    showMatrix(row, col, M);
+    // get sums and means
+    float colSum[col], colMean[col];
+    getColSumMean(row, col, M, colSum, colMean);
+
+    float rowSum[row], rowMean[row];
+    getRowSumMean(row, col, M, rowSum, rowMean);
+
+    int diagSum;
+    diagSum = getDiagSum(row, col, M);
+    printf("\nThe Diag Sum is: %d\n", diagSum);
+
+    float SummaryData[row+2][col+2];
+
+    getSumarryData(row, col, M,
+                   colSum, colMean, rowSum, rowMean,
+                    SummaryData);
+    showFloatMatrix(row+2, col+2, SummaryData);
+    return 0;
+}
+
+
+void readMatrix(int row, int col, int Matrix[row][col]){
+    printf("Enter matrix data: ");
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            scanf("%d", &Matrix[i][j]);
+        }
+    }
+}
+
+void showMatrix(int row, int col, int Matrix[row][col]){
+    for (int i = 0; i < row; ++i) {
+        printf("\n");
+        for (int j = 0; j < col; ++j) {
+            printf("%2d ", Matrix[i][j]);
+        }
+    }
+}
+
+void showFloatMatrix(int row, int col, float Matrix[row][col]){
+    for (int i = 0; i < row; ++i) {
+        printf("\n");
+        for (int j = 0; j < col; ++j) {
+            printf("%5.2f ", Matrix[i][j]);
+        }
+    }
+}
+
+void showArrayData(int n, float Arr[n]){
+    printf("\n");
+    for (int i = 0; i < n; ++i) {
+        printf("%.2f ", Arr[i]);
+    }
+}
+
+void getColSumMean(int row, int col, int Matrix[row][col],
+                   float Sum[col], float Mean[col]){
+    float sum;
+    for (int i = 0; i < col; ++i) {
+        sum = 0;
+        for (int j = 0; j < row; ++j) {
+            sum += Matrix[j][i];
+        }
+        Sum[i] = sum;
+        Mean[i] = sum/row;
+    }
+}
+
+void getRowSumMean(int row, int col, int Matrix[row][col],
+                   float Sum[row], float Mean[row]){
+    float sum;
+    for (int i = 0; i < row; ++i) {
+        sum = 0;
+        for (int j = 0; j < col; ++j) {
+            sum += Matrix[i][j];
+        }
+        Sum[i] = sum;
+        Mean[i] = sum/col;
+    }
+}
+
+int getDiagSum(int row, int col, int Matrix[row][col]){
+    int sum=0;
+    for (int i = 0; i < row; ++i) {
+        sum += Matrix[i][i];
+    }
+    return sum;
+}
+
+void getSumarryData(int row, int col, int Matrix[row][col],
+                    float colSum[col], float colMean[col],
+                    float rowSum[row], float rowMean[row],
+                    float SummaryData[row+2][col+2])
+{
+    // init SummaryData(partly)?
+    for (int k = row; k < row+2; ++k) {
+        for (int i = col; i < col+2; ++i) {
+            SummaryData[k][i] = 0;
+        }
+    }
+
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            SummaryData[i][j] = Matrix[i][j];
+        }
+    }
+    // colSum, colMean
+    for (int i = 0; i < col; ++i) {
+        SummaryData[row][i] = colSum[i];
+        SummaryData[row+1][i] = colMean[i];
+    }
+    // rowSum, rowMean
+    for (int j = 0; j < row; ++j) {
+        SummaryData[j][col] = rowSum[j];
+        SummaryData[j][col+1] = rowMean[j];
+    }
+}
+}}}
+
+
+===== 8. =====
+2018年01月08日
+write a program to add two 3x3 matrix using
+pointers.
+
+涉及的问题：How to pass 2D array (matrix) in a function in C?（https://stackoverflow.com/questions/3911400/how-to-pass-2d-array-matrix-in-a-function-in-c）
+
+答案：http://datahonor.com/2018/01/08/Matrix-in-C/
+
+
+===== 9 =====
+2018年01月09日
+
+Write a program that computes the product of the
+elements that are stored on the diagonal above the
+main diagonal.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdbool.h>
+
+void readMatrix(int nrow, int ncol, int matrix[nrow][ncol]);
+
+void showMatrix(int nrow, int ncol, int matrix[nrow][ncol]);
+
+int calcUpDiagProduct(int nrow, int ncol, int matrix[nrow][ncol]);
+
+// test data
+// 1 3 5 7 9 1 2 3 4
+// 2 4 6 8 0 1 2 3 4
+int main() {
+    int nrow, ncol;
+    nrow = 3;
+    ncol = 4;
+    int matrix[nrow][ncol];
+    readMatrix(nrow, ncol, matrix);
+    showMatrix(nrow, ncol, matrix);
+
+    int result = 1;
+    result = calcUpDiagProduct(nrow, ncol, matrix);
+    printf("The product result is: %d", result);
+    return 0;
+}
+
+void readMatrix(int nrow, int ncol, int matrix[nrow][ncol]) {
+    printf("Enter matrix data: ");
+    for (int i = 0; i < nrow; ++i) {
+        for (int j = 0; j < ncol; ++j) {
+            scanf("%d", &matrix[i][j]);
+        }
+    }
+}
+
+void showMatrix(int nrow, int ncol, int matrix[nrow][ncol]) {
+    for (int i = 0; i < nrow; ++i) {
+        printf("\n");
+        for (int j = 0; j < ncol; ++j) {
+            printf("%4d ", matrix[i][j]);
+        }
+    }
+    printf("\n");
+}
+
+
+int calcUpDiagProduct(int nrow, int ncol, int matrix[nrow][ncol]) {
+    // get the smaller
+    int n;
+    if (nrow >= ncol) n = ncol;
+    else n = nrow;
+    // get result
+    int result = 1;
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            result *= matrix[i][j];
+        }
+    }
+    return result;
+}
+}}}
+
+
+
+===== 10 =====
+Write a program to count the total number of non-
+zero elements in a two-dimensional array.
+
+{{{code: lang="c" linenumbers="True"
+int calcZero(int nrow, int ncol, int matrix[nrow][ncol]){
+    int total = 0;
+    for (int i = 0; i < nrow; ++i) {
+        for (int j = 0; j < ncol; ++j) {
+            if (matrix[i][j] == 0) total += 1;
+        }
+    }
+    return total;
+}
+}}}
+
+
+===== 12 =====
+Write a program to read two floating point number
+arrays. Merge the two arrays and display the
+resultant array in reverse order.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+
+void readArray(int n, float array[n]);
+
+void showArray(int n, float array[n]);
+
+void mergeArrays(int n1, int n2, int m,
+                 float array1[n1], float array2[n2], float array3[m]);
+
+int main() {
+    int n1;
+    n1 = 5;
+    float array1[n1];
+
+    int n2;
+    n2 = 3;
+    float array2[n2];
+
+    int m = n1 + n2;
+    float array3[m];
+
+    readArray(n1, array1);
+    showArray(n1, array1);
+    readArray(n2, array2);
+    showArray(n2, array2);
+
+    mergeArrays(n1, n2, m, array1, array2, array3);
+    showArray(m, array3);
+
+    return 0;
+}
+
+
+void readArray(int n, float array[n]) {
+    printf("Enter array data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%f", &array[i]);
+    }
+}
+
+void showArray(int n, float array[n]) {
+    for (int i = 0; i < n; ++i) {
+        printf("%.2f ", array[i]);
+    }
+    printf("\n");
+}
+
+void mergeArrays(int n1, int n2, int m, float array1[n1], float array2[n2], float array3[m]) {
+    int index = 0;
+    for (int i = 0; i < n2; ++i) {
+        array3[index] = array2[i];
+        index++;
+    }
+    for (int j = 0; j < n1; ++j) {
+        array3[index] = array1[j];
+        index++;
+    }
+}
+}}}
+
+
+===== 13 =====
+Write a program using pointers to interchange the
+second biggest and the second smallest number in
+the array.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+
+void readArray(int n, int array[n]);
+
+void showArray(int n, int array[n]);
+
+int getSecLargePos(int n, int array[n]);
+
+int getSecSmallPos(int n, int array[n]);
+
+void interChange(int n, int array[n]);
+
+int main() {
+    int n;
+    n = 5;
+    int array[n];
+
+    readArray(n, array);
+    showArray(n, array);
+
+    interChange(n, array);
+    showArray(n, array);
+
+    return 0;
+}
+
+
+void readArray(int n, int array[n]) {
+    printf("Enter array data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &array[i]);
+    }
+}
+
+void showArray(int n, int array[n]) {
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", array[i]);
+    }
+    printf("\n");
+}
+
+
+int getSecLargePos(int n, int array[n]) {
+    int pos1 = 0;
+    int largest = array[0];
+    for (int i = 1; i < n; ++i) {
+        if (largest < array[i]) {
+            largest = array[i];
+            pos1 = i;
+        }
+    }
+
+    // 保证seclarge第一次选取不选到largest
+    int pos;
+    if (pos1 + 1 < n) pos = pos1 + 1;
+    else pos = pos1 - 1;
+
+    int seclarge = array[pos];
+    for (int j = 0; j < n; ++j) {
+        if ((array[j] != largest) && seclarge < array[j]) {
+            seclarge = array[j];
+            pos = j;
+        }
+    }
+    return pos;
+}
+
+int getSecSmallPos(int n, int array[n]) {
+    int pos1 = 0;
+    int smallest = array[0];
+    for (int i = 1; i < n; ++i) {
+        if (array[i] < smallest) {
+            smallest = array[i];
+            pos1 = i;
+        }
+    }
+    // 保证secsmall第一次选取不选到smallest
+    int pos;
+    if (pos1 + 1 < n) pos = pos1 + 1;
+    else pos = pos1 - 1;
+
+    int secsmall = array[pos];
+    for (int j = 0; j < n; ++j) {
+        if ((array[j] != smallest) && array[j] < secsmall) {
+            secsmall = array[j];
+            pos = j;
+        }
+    }
+    return pos;
+}
+
+
+void interChange(int n, int array[n]) {
+    int secLargePos = getSecLargePos(n, array);
+    int secSmallPos = getSecSmallPos(n, array);
+    int temp = array[secLargePos];
+    array[secLargePos] = array[secSmallPos];
+    array[secSmallPos] = temp;
+}
+}}}
+
+
+===== 14 =====
+Write a menu driven program to read and display
+a p x q x r matrix. Also, find the sum, transpose,
+and product of the two p x q x r matrices.
+
+不会。。。
+
+===== 15&16&17 =====
+Write a program that reads a matrix and displays
+the sum of its diagonal elements.
+
+Write a program that reads a matrix and displays
+the sum of the elements above the main diagonal.
+(Hint: Calculate the sum of elements A ij where i<j)
+
+Write a program that reads a matrix and displays
+the sum of the elements below the main diagonal.
+(Hint: Calculate the sum of elements Aij where
+i>j)
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void readMatrix(int row, int col, int M[row][col]);
+
+void showMatrix(int row, int col, int M[row][col]);
+
+void sumDiagUpDown(int row, int col, int M[row][col], int result[3]);
+
+// test data 1 2 3 4 5 6 7 8 9 10 11 12
+int main() {
+    int row = 3;
+    int col = 4;
+    int M[row][col];
+    printf("Enter matrix data: ");
+    readMatrix(row, col, M);
+    showMatrix(row, col, M);
+
+    int result[3] = {0, 0, 0};
+    sumDiagUpDown(row, col, M, result);
+    // Diag
+    printf("Diag sum: %d\n", result[0]);
+    // Above
+    printf("Above sum: %d\n", result[1]);
+    // Below
+    printf("Below sum: %d\n", result[2]);
+    return 0;
+}
+
+void readMatrix(int row, int col, int M[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            scanf("%d", &M[i][j]);
+        }
+    }
+}
+
+void showMatrix(int row, int col, int M[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("\n");
+        for (int j = 0; j < col; ++j) {
+            printf("%-2d ", M[i][j]);  // - 使得左对齐
+        }
+    }
+    printf("\n");
+}
+
+void sumDiagUpDown(int row, int col, int M[row][col], int result[3]) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (i == j) {
+                result[0] += M[i][j];
+            } else if (i < j) {
+                result[1] += M[i][j];
+            } else {
+                result[2] += M[i][j];
+            }
+        }
+    }
+}
+
+
+}}}
+
+
+
+===== 18&19&20 =====
+Write a program that reads a square matrix of size
+n x n. Write a function int isUpperTriangular
+(int a[][], int n) that returns 1 if the matrix
+is upper triangular.
+(Hint: Array A is upper triangular if Aij = 0 and i>j)
+
+
+ Write a program that reads a square matrix of size
+n x n. Write a function int isLowerTriangular
+(int a[][], int n) that returns 1 if the matrix
+is lower triangular.
+(Hint: Array A is lower triangular if Aij = 0 and i<j)
+
+
+Write a program that reads a square matrix of
+size n x n. Write a function int isSymmetric
+(int a[][], int n) that returns 1 if the matrix
+is symmetric. (Hint: Array A is symmetric if Aij = Aji for all values of i and j)
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void readMatrix(int row, int col, int M[row][col]);
+
+void showMatrix(int row, int col, int M[row][col]);
+
+int isUpperTriangula(int n, int a[n][n]);
+
+int isLowerTriangula(int n, int a[n][n]);
+
+int isSymmetric(int n, int a[n][n]);
+
+// test data
+// None:1 2 3 4 5 6 7 8 9
+// Upper:1 2 3 0 5 6 0 0 9
+// Lower:1 0 0 2 3 0 4 5 6
+// Symmetric:1 1 2 1 2 3 2 3 3
+int main() {
+    int n;
+    n = 3;
+    int M[n][n];
+    printf("Enter matrix data: ");
+    readMatrix(n, n, M);
+    showMatrix(n, n, M);
+    printf("Upper? %d\n", isUpperTriangula(n, M));
+    printf("Lower? %d\n", isLowerTriangula(n, M));
+    printf("Symmetric? %d\n", isSymmetric(n, M));
+
+    return 0;
+}
+
+void readMatrix(int row, int col, int M[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            scanf("%d", &M[i][j]);
+        }
+    }
+}
+
+void showMatrix(int row, int col, int M[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            printf("%-2d ", M[i][j]);  // - 使得左对齐
+        }
+        printf("\n");
+    }
+}
+
+int isUpperTriangula(int n, int a[n][n]) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if ((i > j) && (a[i][j] != 0)) return 0;
+        }
+    }
+    return 1;
+}
+
+int isLowerTriangula(int n, int a[n][n]) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if ((i < j) && (a[i][j] != 0)) return 0;
+        }
+    }
+    return 1;
+}
+
+int isSymmetric(int n, int a[n][n]) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (a[i][j] != a[j][i]) return 0;
+        }
+    }
+    return 1;
+}
+}}}
+
+
+===== 23 =====
+Write a program to enter a number and break it
+into n number of digits.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXDIGITS 12
+
+int main() {
+    int n;
+    printf("Enter a int: ");
+    scanf("%d", &n);
+    int digit;
+    int len = 0;
+    int digits[MAXDIGITS];
+    while (n > 0) {
+        digit = n % 10;
+        digits[len] = digit;
+        n /= 10;
+        len += 1;
+    }
+
+    for (int i = 0; i < len; ++i) {
+        printf("%d\n", digits[len - i - 1]);
+    }
+
+    // from int to str
+    //char digits[MAXDIGITS];
+    //sprintf(digits, "%d", n);
+    return 0;
+}
+}}}
+
+
+2018年01月14日
+
+===== 24 =====
+Write a program to delete all the duplicate entries
+from an array of n integers.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void dropDuplicate(int *array, int *n);
+
+void getArray(int *array, int n);
+
+void showArray(int *array, int n);
+
+int main() {
+    int n;
+    n = 10;
+    int array[n];
+    getArray(array, n);
+    showArray(array, n);
+    dropDuplicate(array, &n);
+    showArray(array, n);
+    return 0;
+}
+
+
+void dropDuplicate(int *array, int *n) {
+    for (int i = 0; i < *n; ++i) {
+        for (int j = i + 1; j < *n;) {
+            if (array[j] == array[i]) {
+                for (int k = j; k < (*n); ++k) {
+                    array[k] = array[k + 1];  // 虽然可能越界，但是已经在数组之外，故无影响
+                }
+                (*n)--;
+            } else { j++; }
+        }
+    }
+}
+
+
+void getArray(int *array, int n) {
+    printf("Enter array data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &array[i]);
+    }
+}
+
+void showArray(int *array, int n) {
+    for (int i = 0; i < n; ++i) {
+        printf("%2d ", array[i]);
+    }
+    printf("\n");
+}
+}}}
+
+
+===== 25. =====
+Write a program to read a floating point array.
+Update the array to insert a new number at the
+specified location.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void getArray(int n, float *array);
+
+void showArray(int n, float *array);
+
+void insertArray(int n, float *array, float *array_new, int pos, float num);
+
+int main() {
+    int n;
+    n = 5;
+    float array[n];
+    getArray(n, array);
+    showArray(n, array);
+
+    int pos;
+    float num;
+    pos = 3;
+    num = 33;
+    float array_new[n + 1];
+    insertArray(n, array, array_new, pos, num);
+    showArray(n + 1, array_new);
+    return 0;
+}
+
+void getArray(int n, float *array) {
+    printf("Enter Array Data: ");
+    for (int i = 0; i < n; ++i) {
+        scanf("%f", &array[i]);
+    }
+}
+
+void showArray(int n, float *array) {
+    for (int i = 0; i < n; ++i) {
+        printf("%3.2f ", array[i]);
+    }
+    printf("\n");
+}
+
+void insertArray(int n, float *array, float *array_new, int pos, float num) {
+    for (int i = 0; i < n + 1; i++) {
+        if (i < pos) { array_new[i] = array[i]; }
+        else if (i == pos) { array_new[pos] = num; }
+        else { array_new[i] = array[i - 1]; }
+    }
+}
+}}}
+
+
