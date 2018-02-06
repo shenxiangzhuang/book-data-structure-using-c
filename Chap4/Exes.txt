@@ -1,0 +1,1030 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-01-22T11:32:05+08:00
+
+====== Exes ======
+Created 星期一 22 一月 2018
+
+===== 1&2 =====
+1. Write a program in which a string is passed as an argument to a function.
+2. Write a program in C to concatenate first n characters of a string with another string.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void concatNchar(int n, char str1[], char str2[], char str3[]);
+
+int main(){
+    int n = 3;
+    char str1[] = "Yes, you are";
+    char str2[] = " or Not";
+    char str3[15];
+    concatNchar(n, str1, str2, str3);
+    printf("After concate: %s\n", str3);
+    return 0;
+}
+
+void concatNchar(int n, char str1[], char str2[], char str3[]){
+    int i = 0;
+    while (n>0){
+        str3[i] = str1[i];
+        i++;
+        n--;
+    }
+    int j = 0;
+    while (str2[j] != '\0'){
+        str3[i] = str2[j];
+        i++;
+        j++;
+    }
+    str3[i] = '\0';
+}
+}}}
+
+
+===== 3 =====
+Write a program in C that compares first n characters of one string with first n characters of another string.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void compareN(int n, char str1[], char str2[], int result[n]);
+void showArray(int n, int array[n]);
+
+int main(){
+    int n = 5;
+    char str1[] = "Hello";
+    char str2[] = "World";
+    int result[n];
+    compareN(n, str1, str2, result);
+    showArray(n, result);
+    return 0;
+}
+
+
+void compareN(int n, char str1[], char str2[], int result[n]){
+    for (int i = 0; i < n; ++i) {
+        if(str1[i] > str2[i])
+            result[i] = 1;
+        else if(str1[i] == str2[i])
+            result[i] = 0;
+        else
+            result[i] = -1;
+    }
+}
+
+void showArray(int n, int array[n]){
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", array[i]);
+    }
+}
+}}}
+
+
+===== 4 =====
+Write a program in C that removes leading and trailing spaces from a string.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+void removeSpace(char str[], char newstr[]);
+
+int main(){
+    char str[] = "  Hello World  ";
+    char newstr[15];
+    removeSpace(str, newstr);
+    printf("After processed: %s", newstr);
+
+    return 0;
+}
+
+void removeSpace(char str[], char newstr[]){
+    int i = 0, j = 0;
+    while(isspace(str[i])) i++;
+    int end  = (int)strlen(str) - 1;
+    while (isspace(str[end]) && end > i) end--;
+    for (int k = i; k < end+1; ++k) {
+        newstr[j] = str[k];
+        j++;new
+    }
+    newstr[j] = '\0';
+
+}
+}}}
+
+
+===== 5 =====
+Write a program in C that replaces a given character with another character in a string.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void replaceChar(char str[], char old, char new);
+
+int main(){
+    char str[] = "Hello";
+    char old, new;
+    old = 'H';
+    new = 'h';
+    printf("Before replacement: %s\n", str);
+    replaceChar(str, old, new);
+    printf("After replace %c with %c: %s", old, new, str);
+}
+
+void replaceChar(char str[], char old, char new){
+    int i = 0;
+    while(str[i] != '\0'){
+        if(str[i] == old)
+            str[i] = new;
+        i++;
+    }
+}
+}}}
+
+
+===== 6 =====
+Write a program to count the number of digits, upper case characters, lower case characters, and special characters in a given string.
+
+special character只是选取ascii code 32 到47，可能不够。
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+// Isxxx --> 1:yes; 0-->no;
+int isDigits(char c);
+int isUpper(char c);
+int isLower(char c);
+int isSpecial(char c);
+void countCases(char str[]);
+
+int main(){
+    char str[] = "Hello10@_@01World";
+    countCases(str);
+
+    return 0;
+}
+
+int isDigits(char c){
+    if(c >= 48 && c <= 57) return 1;
+    else return 0;
+}
+
+int isUpper(char c){
+    if(c >= 65 && c <= 90) return 1;
+    else return 0;
+}
+int isLower(char c){
+    if(c >= 97 && c <= 122) return 1;
+    else return 0;
+}
+
+int isSpecial(char c){
+    if(c >= 32 && c <= 47) return 1;
+    else return 0;
+}
+
+void countCases(char str[]){
+    int i=0, digit_num=0, upper_num=0, lower_num=0, special_num=0;
+    while (str[i] != '\0'){
+        if(isDigits(str[i])) digit_num++;
+        if(isUpper(str[i])) upper_num++;
+        if(isLower(str[i])) lower_num++;
+        if(isSpecial(str[i])) special_num++;
+        i++;
+    }
+    printf("%s with %d digits, %d Upper case letter, %d Lower case letter and %d special character.",
+            str, digit_num, upper_num, lower_num, special_num);
+}
+}}}
+
+
+
+===== 7 =====
+Write a program to count the total number of occurrences of a given character in the string.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int countChar(char str[], char c);
+
+int main(){
+    int num;
+    char str[] = "HelloWorld";
+    char c = 'l';
+    num = countChar(str, c);
+    printf("There are %d %c in %s", num, c, str);
+    return 0;
+}
+
+int countChar(char str[], char c){
+    int i=0, num=0;
+    while (str[i] != '\0'){
+        if(str[i] == c) num++;
+        i++;
+    }
+    return num;
+}
+}}}
+
+
+===== 8&9 =====
+8  Write a program to accept a text. Count and display the number of times the word ‘the’ appears in the text.
+9  Write a program to count the total number of occurrences of a word in the text.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int countPattern(char str[], char pattern[]);
+
+int main(){
+    char str[] = "Hahahaha, I'm fine.Haha.";
+    char pattern[] = "ha";
+    int num;
+    num = countPattern(str, pattern);
+    printf("There are %d %s in %s", num, pattern, str);
+
+    return 0;
+}
+
+int countPattern(char str[], char pattern[]){
+    int num = 0;
+    int i=0;
+    int j, found;
+    while (str[i] != '\0'){
+        j = 0;
+        if(str[i] == pattern[j]){
+            found = 1;
+            while (pattern[j] != '\0'){
+                if(pattern[j] == str[i+j])  // 这里不要随意改动i，否则会影响外部循环
+                    j++;
+                else
+                {
+                    found = 0;
+                    break;
+                }
+            }
+            if(found) num++;
+        }
+        i++;
+    }
+    return num;
+}
+}}}
+
+
+===== 10 =====
+Write a program to find the last instance of occurrence of a sub-string within a string.
+只需要在上面8，9题的基础上，记录一下位置信息即可。
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int countPattern(char str[], char pattern[], int poses[]);
+void showArray(int n, int array[]);
+
+int main(){
+    char str[] = "Hahahaha, I'm fine.Haha.";
+    char pattern[] = "ha";
+    int num;
+    int poses[20];
+    num = countPattern(str, pattern, poses);
+    printf("There are %d %s in %s\n", num, pattern, str);
+    printf("And the positions of the pattern are as fellows: ");
+    showArray(num, poses);
+    return 0;
+}
+
+int countPattern(char str[], char pattern[], int poses[]){
+    int num = 0;
+    int i=0;
+    int j, found;
+    while (str[i] != '\0'){
+        j = 0;
+        if(str[i] == pattern[j]){
+            found = 1;
+            while (pattern[j] != '\0'){
+                if(pattern[j] == str[i+j])  // 这里不要随意改动i，否则会影响外部循环
+                    j++;
+                else
+                {
+                    found = 0;
+                    break;
+                }
+            }
+            if(found)
+            {
+                poses[num] = i;
+                num++;
+            }
+        }
+        i++;
+    }
+    return num;
+}
+
+void showArray(int n, int array[]){
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", array[i]);
+    }
+}
+}}}
+
+
+===== 11 =====
+Write a program to input an array of strings. Then,
+reverse the string in the format shown below.		
+ "HAPPY BIRTHDAY TO YOU" should be displayed
+as "YOU TO BIRTHDAY HAPPY"
+
+思路：先获取所有空格后的字符的位置，再在开始加上初始位置0，构成单词开始位置的数组。
+		之后反向读取数组，将每个单词重新写入新的字符串。
+注意：这里没有使用gets，因为其不安全（容易overflow？），而且其也将被弃用。
+		没用scanf，因为其也存在隐患，之前也提到过，主要因为一次没有读取完input时，其剩余内容会存在input buffer中，下次调用scanf会继续从中读取，这  样有可能会造成死循环。
+		选用fgets是因为其比较安全（可以指定读取的最大字符数目），而且可以比较方便地处理"file stream"与"input stream"。注意一点就是这里输入字符串的时候，'\n'会被捕捉进入，我们使用 strcspn去除了最后的换行符。
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void readStrings(int row, int col, char str[row][col]);
+
+void showStrings(int row, int col, char str[row][col]);
+
+int findAfterSpacePos(int *poses, char *str);
+
+void reverseStrings(int row, int col, char str[row][col]);
+
+
+int main() {
+    int row, col;
+    row = 2;
+    col = 30;
+    char str[row][col];
+    readStrings(row, col, str);
+    showStrings(row, col, str);
+
+    reverseStrings(row, col, str);
+    showStrings(row, col, str);
+
+    return 0;
+}
+
+void readStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; i++) {
+        printf("Enter String %d: ", i + 1);
+        fgets(str[i], col, stdin);
+        // 去除fgets捕捉到的'\n'
+        str[i][strcspn(str[i], "\n")] = 0;
+    }
+}
+
+
+void showStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("String %d: %s", i + 1, str[i]);
+        printf("\n");
+    }
+}
+
+
+int findAfterSpacePos(int *poses, char *str) {
+    int i = 0, j = 0;
+    poses[j] = 0;
+    j += 1;
+    while (str[i] != '\0') {
+        if (str[i] == ' ') {
+            poses[j] = i + 1;
+            j++;
+        }
+        i++;
+    }
+    return j;
+}
+
+void reverseStrings(int row, int col, char str[row][col]) {
+    int pos, poses[col], spaceNum;
+    char temp[col];
+    int new_index;
+    for (int i = 0; i < row; ++i) {
+        new_index = 0;
+        strcpy(temp, str[i]);
+        spaceNum = findAfterSpacePos(poses, temp);
+        for (int j = spaceNum - 1; j >= 0; --j) {
+            pos = poses[j];
+            while (temp[pos] != '\0' && temp[pos] != ' ') {
+                str[i][new_index] = temp[pos];
+                new_index++;
+                pos++;
+            }
+            str[i][new_index] = ' ';
+            new_index++;
+        }
+        str[i][new_index-1] = '\0';  // 将最后一个空格换为终止符
+    }
+}
+}}}
+
+
+
+===== 12 =====
+Write a program to append a given string in the following format.
+ "GOOD MORNING MORNING GOOD"
+
+只需要在11题的基础上和原来的字符串拼接在一起就可以了。
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void readStrings(int row, int col, char str[row][col]);
+
+void showStrings(int row, int col, char str[row][col]);
+
+int findAfterSpacePos(int *poses, char *str);
+
+void addReverseStrings(int row, int col, char str[row][col]);
+
+
+int main() {
+    int row, col;
+    row = 2;
+    col = 100;
+    char str[row][col];
+    readStrings(row, col, str);
+    showStrings(row, col, str);
+
+    addReverseStrings(row, col, str);
+    showStrings(row, col, str);
+
+    return 0;
+}
+
+void readStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; i++) {
+        printf("Enter String %d: ", i + 1);
+        fgets(str[i], col, stdin);
+        // 去除fgets捕捉到的'\n'
+        str[i][strcspn(str[i], "\n")] = 0;
+    }
+}
+
+
+void showStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("String %d: %s", i + 1, str[i]);
+        printf("\n");
+    }
+}
+
+
+int findAfterSpacePos(int *poses, char *str) {
+    int i = 0, j = 0;
+    poses[j] = 0;
+    j += 1;
+    while (str[i] != '\0') {
+        if (str[i] == ' ') {
+            poses[j] = i + 1;
+            j++;
+        }
+        i++;
+    }
+    return j;
+}
+
+void addReverseStrings(int row, int col, char str[row][col]) {
+    int pos, poses[col], spaceNum;
+    char temp[col];
+    int new_index;
+    for (int i = 0; i < row; ++i) {
+        int len = (int)strlen(str[i]);
+        new_index = len+1;
+        strcpy(temp, str[i]);
+        str[i][len] = ' ';
+        spaceNum = findAfterSpacePos(poses, temp);
+        for (int j = spaceNum - 1; j >= 0; --j) {
+            pos = poses[j];
+            while (temp[pos] != '\0' && temp[pos] != ' ') {
+                str[i][new_index] = temp[pos];
+                new_index++;
+                pos++;
+            }
+            str[i][new_index] = ' ';
+            new_index++;
+        }
+        str[i][new_index-1] = '\0';  // 将最后一个空格换为终止符
+    }
+}
+}}}
+
+
+===== 13&14 =====
+不懂paragraphs如何定义...
+
+
+===== 15 =====
+Write a program to convert the given string "GOOD
+MORNING" to "good morning".
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void toLower(char str[]);
+
+int main() {
+    char str[] = "GOOD MORNING";
+    toLower(str);
+    printf("After processed: %s", str);
+
+    return 0;
+}
+
+void toLower(char str[]) {
+    int bwtween = 'a' - 'A';
+    int i = 0;
+    while (str[i] != 0) {
+        if (str[i] >= 65 && str[i] <= 90)
+            str[i] += bwtween;
+        i++;
+    }
+}
+}}}
+
+
+===== 16 =====
+Write a program to concatenate two given
+strings "Good Morning" and "World". Display the
+resultant string.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void concatString(char str1[], char str2[], char str[]);
+
+int main() {
+    char str1[] = "Hello World";
+    char str2[] = "Good Morning";
+    char str[50];
+    concatString(str1, str2, str);
+    printf("%s + %s = %s", str1, str2, str);
+
+    return 0;
+}
+
+void concatString(char str1[], char str2[], char str[]) {
+    int i = 0, j = 0;
+    while (str1[i] != 0) {
+        str[j] = str1[i];
+        i++;
+        j++;
+    }
+    i = 0;
+    // here we can add something as separator
+    str[j] = ' ';
+    j++;
+
+    while (str2[i] != 0) {
+        str[j] = str2[i];
+        i++;
+        j++;
+    }
+    str[j] = '\0';
+}
+}}}
+
+
+===== 17 =====
+Write a program to check whether the two given
+strings "Good Morning" and "Good Morning" are
+same.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+// yes:1; no:0;
+int isSameStr(char str1[], char str2[]);
+
+int main(){
+    char str1[] = "good";
+    char str2[] = "good";
+    int result;
+    result = isSameStr(str1, str2);
+    printf("%s ? %s: %d", str1, str2, result);
+
+    return 0;
+}
+
+int isSameStr(char str1[], char str2[]){
+    // 这里首先判断下长度还是很有必要的，不然像下面那样直接比较
+    // 会出现问题，比如：good v.s. good morning
+    int len1, len2;
+    len1 = (int)strlen(str1);
+    len2 = (int)strlen(str2);
+    if(len1!=len2) return 0;
+
+    int result = 1, i = 0;
+    while (str1[i] != 0){
+        if(str1[i] != str2[i]){
+            result = 0;
+            break;
+        }
+        i++;
+    }
+    return result;
+}
+}}}
+
+
+===== 18 =====
+Write a program to convert the given string "hello
+world" to "dlrow olleh".
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void reverseStr(char str[]);
+
+int main(){
+    char str[] = "hello world";
+    reverseStr(str);
+    printf("%s", str);
+    return 0;
+}
+
+void reverseStr(char str[]){
+    int i = 0;
+    int len = (int)strlen(str);
+    char temp[len+1];
+    strcpy(temp, str);
+    while (temp[i] != 0){
+        str[i] = temp[len-i-1];
+        i++;
+    }
+    str[i] = '\0';
+}
+}}}
+
+
+===== 19 =====
+Write a program to extract the string "od Mo" from
+the given string "Good Morning".
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void deletePattern(char str[], char pattern[]);
+
+int main() {
+    char str[] = "Good Morning Good Morning";
+    char pattern[] = "od Mo";
+    deletePattern(str, pattern);
+    printf("After delete %s: %s", pattern, str);
+
+    return 0;
+}
+
+void deletePattern(char str[], char pattern[]) {
+    int i = 0;
+    int j, found, k = 0;
+    char temp[strlen(str)];
+    while (str[i] != 0) {
+        j = 0;
+        found = 0;
+        if (str[i] == pattern[j]) {
+            found = 1;
+            while (pattern[j] != 0) {
+                if (pattern[j] != str[j + i]) {
+                    found = 0;
+                    break;
+                }
+                j++;
+            }
+        }
+        if (found)  // if found then pass...
+            i += j;
+        else{
+            temp[k] = str[i];
+            i += 1;
+            k++;
+        }
+    }
+    temp[k] = '\0';
+    strcpy(str, temp);
+}
+
+}}}
+
+
+===== 20&23 =====
+
+20. Write a program to insert "University" in the
+given string "Oxford Press" so that the string
+should read as "Oxford University Press".
+
+23. Write a program to rewrite the string "Good
+Morning" to "Good Evening".
+
+暂时不写，实现的不太好...
+
+参考这里：https://stackoverflow.com/questions/779875/what-is-the-function-to-replace-string-in-c
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+char *str_replace(char *orig, char *rep, char *with) {
+    char *result; // the return string
+    char *ins;    // the next insert point
+    char *tmp;    // varies
+    int len_rep;  // length of rep (the string to remove)
+    int len_with; // length of with (the string to replace rep with)
+    int len_front; // distance between rep and end of last rep
+    int count;    // number of replacements
+
+    // sanity checks and initialization
+    if (!orig || !rep)
+        return NULL;
+    len_rep = strlen(rep);
+    if (len_rep == 0)
+        return NULL; // empty rep causes infinite loop during count
+    if (!with)
+        with = "";
+    len_with = strlen(with);
+
+    // count the number of replacements needed
+    ins = orig;
+    for (count = 0; tmp = strstr(ins, rep); ++count) {
+        ins = tmp + len_rep;
+    }
+
+    tmp = result = malloc(strlen(orig) + (len_with - len_rep) * count + 1);
+
+    if (!result)
+        return NULL;
+
+    // first time through the loop, all the variable are set correctly
+    // from here on,
+    //    tmp points to the end of the result string
+    //    ins points to the next occurrence of rep in orig
+    //    orig points to the remainder of orig after "end of rep"
+    while (count--) {
+        ins = strstr(orig, rep);
+        len_front = ins - orig;
+        tmp = strncpy(tmp, orig, len_front) + len_front;
+        tmp = strcpy(tmp, with) + len_with;
+        orig += len_front + len_rep; // move to next "end of rep"
+    }
+    strcpy(tmp, orig);
+    return result;
+}
+
+int main() {
+    char orig[] = "hello, Good Morning, hello";
+    char oldPattern[] = "Good Morning";
+    char newPattern[] = "Good Evening~";
+
+    char *result;
+    result = str_replace(orig, oldPattern, newPattern);
+    printf("ss1:'%s', After replace '%s' with '%s': '%s'", orig, oldPattern, newPattern, result);
+
+    free(result);
+    return 0;
+}
+}}}
+
+
+
+===== 21 =====
+
+Write a program to read a text, delete all the semicolons it has, and finally replace all '.' with a ',' .
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void deletSemi(char str[]);
+void replacedot(char str[]);
+
+int main(){
+    char str[] = "H;ello. W;orld";
+    deletSemi(str);
+    replacedot(str);
+    printf("After Processed: %s", str);
+    return 0;
+}
+
+void deletSemi(char str[]){
+    int i = 0, j = 0;
+    char temp[strlen(str)+1];
+    while (str[i] != 0){
+        if(str[i] != ';'){
+            temp[j] = str[i];
+            j++;
+        }
+        i++;
+    }
+    temp[j] = '\0';
+    strcpy(str, temp);
+}
+
+void replacedot(char str[]){
+    int i = 0;
+    while (str[i] != 0){
+        if(str[i] == '.')
+            str[i] = ',';
+        i++;
+    }
+}
+
+}}}
+
+
+===== 22 =====
+
+Write a program to copy the last n characters of a
+character array in another character array. Also,
+convert the lower case letters into upper case
+letters while copying.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+void copyAndConvert(char str1[], char str2[], int n);
+
+int main(){
+    char str1[] = "Hello, World";
+    int n = 5;
+    char str2[n+1];
+    copyAndConvert(str1, str2, n);
+    printf("After Processed: %s", str2);
+    return 0;
+}
+
+void copyAndConvert(char str1[], char str2[], int n){
+    int i = (int)strlen(str1)-n;
+    int j = 0;
+    while (str1[i] != 0){
+        if(str1[i] >= 97 && str1[i] <= 122)
+            str2[j] = str1[i] - 32;
+        else
+            str2[j] = str1[i];
+        j++;
+        i++;
+    }
+}
+}}}
+
+
+
+===== 24 =====
+Write a program to read and display names of
+employees in a department.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <malloc.h>
+
+void readStrings(int row, int col, char str[row][col]);
+
+void readStringsByPointer(int row, int col, char ***str);
+
+void showStrings(int row, int col, char str[row][col]);
+
+void showStringsByPointer(int row, int col, char **str);
+
+int main() {
+    int row = 2;
+    int col = 10;
+    printf("***S[][]***\n");
+    char str[row][col];
+    readStrings(row, col, str);
+    showStrings(row, col, str);
+
+    printf("***Pointerd***\n");
+    char **pstr;
+    readStringsByPointer(row, col, &pstr);
+    showStringsByPointer(row, col, pstr);
+    freeMem(row, col, &pstr);
+    return 0;
+}
+
+void readStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("Enter name of %d: ", i + 1);
+        fgets(str[i], col, stdin);
+    }
+}
+
+
+void allocateMem(int row, int col, char ***str) {
+    *str = malloc(row);
+    for (int i = 0; i < row; ++i) {
+        (*str)[i] = malloc(col + 1);
+    }
+}
+
+void freeMem(int row, int col, char ***str) {
+    for (int i = 0; i < row; ++i) {
+        free((*str)[i]);
+    }
+    free(*str);
+}
+
+void readStringsByPointer(int row, int col, char ***str) {
+    allocateMem(row, col, str);
+    for (int i = 0; i < row; ++i) {
+        printf("Enter name of %d: ", i + 1);
+        fgets((*str)[i], col, stdin);
+    }
+}
+
+void showStrings(int row, int col, char str[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("The name of %d: %s", i + 1, str[i]);
+    }
+}
+
+void showStringsByPointer(int row, int col, char **str) {
+    for (int i = 0; i < row; ++i) {
+        printf("The name of %d: %s", i + 1, str[i]);
+    }
+}
+}}}
+
+
+===== 25 =====
+Write a program to read a line until a newline is
+entered.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int main(){
+    char str[10];
+    printf("Enter a string: ");
+    fgets(str, 10, stdin);
+    printf("Read: %s", str);
+    return 0;
+}
+}}}
+
+
+===== 26 =====
+Write a program to read a short story. Rewrite
+the story by printing the line number before the
+starting of each line.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void readStrings(char str[]);
+void showStrings(char str[]);
+
+int main(){
+    char str[100];
+    readStrings(str);
+    showStrings(str);
+
+    return 0;
+}
+
+void readStrings(char str[]){
+    printf("Enter String: ");
+    fgets(str, 100, stdin);
+}
+
+void showStrings(char str[]){
+    int i = 0, j = 0;
+    printf("Line%d: ", j+1);
+    while (str[i] != 0){
+        printf("%c", str[i]);
+        if(str[i] == '.' && str[i+1] != '\n'){  // 这里注意, fget会自己读进去换行符
+            printf("\nLine%d:", j+1);
+            j++;
+        }
+        i++;
+    }
+}
+}}}
+
+
+===== 27 =====
+Write a program to enter a text that contains
+multiple lines. Display the n lines of text starting
+from the mth line.
+
+
+===== 28 =====
+Write a program to check whether a pattern exists
+in a text. If it does, delete the pattern and display
+it.
+
+[[emmm....发现书上给的demo有bug...泛化能力太差...摔 :-)]]
+
+
+
+
+
+
+

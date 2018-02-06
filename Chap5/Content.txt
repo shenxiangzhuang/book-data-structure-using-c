@@ -1,0 +1,385 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-01-27T22:59:19+08:00
+
+====== Content ======
+Created 星期六 27 一月 2018
+
+===== 1 =====
+Write a program using structures to read and display the information about a student.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int main() {
+    struct student {
+        int roll_no;
+        char name[80];
+        float fees;
+        char DOB[80];
+    };
+    struct student student1;
+    printf("Enter the roll number: ");
+    scanf("%d", &student1.roll_no);
+    printf("Enter the name: ");
+    scanf("%s", student1.name);
+    printf("Enter the fees: ");
+    scanf("%f", &student1.fees);
+    printf("Enter the DOB: ");
+    scanf("%s", student1.DOB);
+    printf("***STUDENT'S DETAILS***");
+    printf("\nROLL No. = %d", student1.roll_no);
+    printf("\nFEES = %f", student1.fees);
+    printf("\nDOB = %s", student1.DOB);
+
+    return 0;
+}
+}}}
+
+
+===== 2 =====
+Write a program to read, display, add, and subtract two complex numbers.
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+typedef struct complex{
+    int real;
+    int imag;
+}COMPLEX;
+
+COMPLEX subComplex(COMPLEX complex1, COMPLEX complex2);
+COMPLEX addComplex(COMPLEX complex1, COMPLEX complex2);
+COMPLEX mulComplex(COMPLEX complex1, COMPLEX complex2);
+
+void showComplex(COMPLEX complex1);
+
+int main(){
+    COMPLEX complex1 = {1, 2};
+    COMPLEX complex2 = {2, 2};
+    showComplex(subComplex(complex1, complex2));
+    showComplex(addComplex(complex1, complex2));
+    showComplex(mulComplex(complex1, complex2)
+    );
+
+    return 0;
+}
+
+COMPLEX subComplex(COMPLEX complex1, COMPLEX complex2){
+    COMPLEX result;
+    result.real = complex1.real - complex2.real;
+    result.imag = complex1.imag - complex2.imag;
+    return result;
+}
+
+COMPLEX addComplex(COMPLEX complex1, COMPLEX complex2){
+    COMPLEX result;
+    result.real = complex1.real + complex2.real;
+    result.imag = complex1.imag + complex2.imag;
+    return result;
+
+}
+
+COMPLEX mulComplex(COMPLEX complex1, COMPLEX complex2){
+    COMPLEX result;
+    result.real = complex1.real*complex2.real
+                  - complex1.imag*complex2.imag;
+    result.imag = complex1.real*complex2.imag
+                  + complex1.imag*complex2.real;
+    return result;
+}
+
+void showComplex(COMPLEX complex1){
+    printf("%d+%di\n", complex1.real, complex1.imag);
+}
+}}}
+
+
+===== 5 =====
+Write a program to read, display, add, and subtract two distances. Distance must be defined
+using kms and meters.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+typedef struct distance {
+    int kms;
+    int meters;
+} DISTANCE;
+
+DISTANCE add_distance(DISTANCE, DISTANCE);
+
+DISTANCE substract_distance(DISTANCE, DISTANCE);
+
+DISTANCE d1, d2, d3, d4;
+
+int main() {
+    int option;
+    do {
+        printf("***MAIN MENU***\n");
+        printf("1. Read the distance\n");
+        printf("2. Display the distance\n");
+        printf("3. Add the distance\n");
+        printf("4. Substract the distance\n");
+        printf("5. EXIT\n");
+        printf("Enter your option: ");
+        scanf("%d", &option);
+        switch (option) {
+            case 1:
+                printf("First: kms and ms: ");
+                scanf("%d %d", &d1.kms, &d1.meters);
+                printf("Second: kms and ms: ");
+                scanf("%d %d", &d2.kms, &d2.meters);
+                break;
+            case 2:
+                printf("First: %d kms and %d ms: \n", d1.kms, d1.meters);
+                printf("Second: %d kms and %d ms: \n", d2.kms, d2.meters);
+                break;
+            case 3:
+                d3 = add_distance(d1, d2);
+                printf("Sum of two distance is: %d kms and %d meters\n",
+                       d3.kms, d3.meters);
+                break;
+            case 4:
+                d4 = substract_distance(d1, d2);
+                printf("Substract of two distance is: %d kms and %d meters\n",
+                       d4.kms, d4.meters);
+                break;
+        }
+    } while (option != 5);
+
+    return 0;
+}
+
+DISTANCE add_distance(DISTANCE d1, DISTANCE d2) {
+    DISTANCE sum;
+    sum.meters = d1.meters + d2.meters;
+    sum.kms = d1.kms + d2.kms;
+    while (sum.meters >= 1000) {
+        sum.meters = sum.meters % 1000;
+        sum.kms += 1;
+    }
+    return sum;
+}
+
+DISTANCE substract_distance(DISTANCE d1, DISTANCE d2) {
+    DISTANCE sub;
+    if (d1.kms > d2.kms) {
+        sub.meters = d1.meters - d2.meters;
+        sub.kms = d1.kms - d2.kms;
+    } else {
+        sub.meters = d2.meters - d1.meters;
+        sub.kms = d2.kms - d1.kms;
+    }
+    if (sub.meters < 0) {
+        sub.kms -= 1;
+        sub.meters += 1000;
+    }
+    return sub;
+}
+}}}
+
+
+
+===== 7 =====
+Write a program, using an array of pointers to a structure, to read and display the data of
+students.
+
+注意：在scanf之后用fgets会有问题。因为scanf最后会留下一个'\n'在input buffer中，而fgets是从input buffer开始读的（如果后面选择stdin），而且是以'\n'为读取的终止，所以fgets(xxx, size, stdin)之后，读到xxx内的只有一个'\n'.一般选择的改进的方法有两种，一种是在使用fgets之前consum掉scanf缓存的'\n'（要设置格式来着，或者用getchar()来去除input buffer中的'\n'）。再一种比较好的办法就是用下面的方法：fgets+sscanf。
+另外，书的年代比较早了（1989），所以还在用gets，目前gets已被列为高危的存在，不用的好。
+
+{{{code: lang="c" linenumbers="True"
+#include<stdio.h>
+#include <stdlib.h>
+
+struct student {
+    int r_no;
+    char name[20];
+    char course[20];
+    int fees;
+};
+struct student *ptr_stud[10];
+
+int main() {
+    int i, n;
+    char temp[20];
+    printf("Enter the number of students: ");
+    fgets(temp, 25, stdin);
+    sscanf(temp, "%d", &n);
+
+    for (i = 0; i < n; i++) {
+        ptr_stud[i] = (struct student *) malloc(sizeof(struct student));
+        printf("Enter the data for student %d(id name course fee): ", i + 1);
+        fgets(temp, 25, stdin);
+        sscanf(temp, "%d %s %s %d",
+               &ptr_stud[i]->r_no, ptr_stud[i]->name,
+               &ptr_stud[i]->course, &ptr_stud[i]->fees);
+
+    }
+    printf("DETAILS OF STUDENTS");
+    for (i = 0; i < n; ++i) {
+        printf("\nROLL NO. = %d", ptr_stud[i]->r_no);
+        printf("\nNAME = %s", ptr_stud[i]->name);
+        printf("\nCOURSE = %s", ptr_stud[i]->course);
+        printf("\nFEE = %d", ptr_stud[i]->fees);
+
+    }
+    return 0;
+}
+}}}
+
+
+
+===== 8 =====
+
+Write a program that passes a pointer to a structure to a function.
+
+注意：这里readStudentWrong函数错在“以为改动了x的value，其实只是改变了x在function内的一个copy”。
+也就是说，通过readStudentWrong函数，main函数中的pstu的值（所指向对象的地址）并未改变成mallo分配的内存地址。（code2）
+本质上，这个错误和“改数字”的错误是一样的。（code1）
+
+参考：https://stackoverflow.com/questions/2838038/c-programming-malloc-inside-another-function  （By VELVETDETH）
+
+== code1 ==
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void changeValue(int x){
+    x++;
+}
+int main(){
+    int x = 1;
+    changeValue(x);
+    printf("After changgeValue: %d", x);
+
+    return 0;
+}
+}}}
+
+
+== code2 ==
+{{{code: lang="c" linenumbers="True"
+#include <stdlib.h>
+#include <stdio.h>
+
+struct student {
+    int number;
+    char name[20];
+    char course[20];
+    int fees;
+};
+
+struct student *readStudent(struct student *pstu);
+
+void readStudentByPointer(struct student **pstu);
+
+void readStudentWrong(struct student *pstu);
+
+
+void showStudent(struct student *pstu);
+
+// test data: 6 Tim ABC 3400
+int main() {
+    struct student *pstu = NULL;
+    // way1
+    readStudentByPointer(&pstu);
+    showStudent(pstu);
+    // way2
+    pstu = readStudent(pstu);
+    showStudent(pstu);
+    // wrong way!
+//    readStudentWrong(pstu);
+//    showStudent(pstu);
+
+    return 0;
+}
+
+struct student *readStudent(struct student *pstu) {
+    pstu = (struct student *) malloc(sizeof(struct student));
+    printf("Enter student data(Id Name Course Fees): ");
+    char temp[30];
+    fgets(temp, 30, stdin);
+    sscanf(temp, "%d %s %s %d", &pstu->number, pstu->name,
+           pstu->course, &pstu->fees);      
+    free(pstu);
+
+    return pstu;
+}
+
+void readStudentByPointer(struct student **pstu) {
+    *pstu = (struct student *) malloc(sizeof(struct student));
+    printf("Enter student data(Id Name Course Fees): ");
+    char temp[30];
+    fgets(temp, 30, stdin);
+    sscanf(temp, "%d %s %s %d", &(*pstu)->number, (*pstu)->name,
+           (*pstu)->course, &(*pstu)->fees);
+}
+
+void readStudentWrong(struct student *pstu) {
+    pstu = (struct student *) malloc(sizeof(struct student));
+    printf("Enter student data(Id Name Course Fees): ");
+    char temp[30];
+    fgets(temp, 30, stdin);
+    sscanf(temp, "%d %s %s %d", &pstu->number, pstu->name,
+           pstu->course, &pstu->fees);
+}
+
+void showStudent(struct student *pstu) {
+    printf("Student Data: ");
+    printf("\nNO. = %d", pstu->number);
+    printf("\nName = %s", pstu->name);
+    printf("\nCourse = %s", pstu->course);
+    printf("\nFees = %d\n", pstu->fees);
+
+}
+}}}
+
+
+
+===== 5.8 UNIONS INSIDE STRUCTURES =====
+
+学习：去除input buffer中的'\n' ；去除fgets捕捉到的'\n'
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+
+struct student
+{
+    union {
+        char name[20];
+        int roll_no;
+    };
+    int marks;
+};
+
+int main(){
+    struct student stud;
+    char choice;
+    printf("Do you want to enter the name?(Y or N): ");
+    scanf("%c", &choice);
+    getchar();  // 去除input buffer中的'\n'
+    if(choice == 'y' || choice == 'Y'){
+        printf("Enter the name: ");
+        fgets(stud.name, 20, stdin);
+        // 去除fgets捕捉到的'\n'
+        stud.name[strcspn(stud.name, "\n")] = 0;
+    } else
+    {
+        printf("Enter the roll number: ");
+        scanf("%d", &stud.roll_no);
+    }
+    printf("Enter the marks: ");
+    scanf("%d", &stud.marks);
+    if(choice == 'y' || choice == 'Y'){
+        printf("Name: %s\n", stud.name);
+    } else
+    {
+        printf("Roll number: %d\n", stud.roll_no);
+    }
+    printf("Marks: %d", stud.marks);
+
+    return 0;
+}
+}}}
+
+
+
+

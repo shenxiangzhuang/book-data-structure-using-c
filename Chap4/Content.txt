@@ -1,0 +1,471 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-01-20T12:07:13+08:00
+
+====== Content ======
+Created 星期六 20 一月 2018
+
+===== P131 scanf =====
+一般不推荐使用scanf，因为其不安全。
+__the function will read and ignore any whitespace characters encountered before the next non-whitespace character (whitespace characters include spaces, newline and tab characters -- see isspace).__ 
+可以看到，scanf忽略前面的空白字符，从第一个非空字符开始读取，直至遇到下一个空白字符才结束。
+
+一方面，scanf是读取的空格之前的一系列输入，所以可能会“越界”。而输入过多可能出现stack smashing错误,即使不出错，最后也不会自动加上'\0'(一般情况下会自动加)，因为输入的字符“足够多”，“填满”了空间，类似str[] = "abc"与str[3] = "abc"(后者就不会自动加'\0')。
+参考：
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+// test input: a bcdefg
+int main(){
+    char str1[2];
+    char str2[2];
+    char str3[2];
+
+    scanf("%2s", str1);
+    scanf("%2s", str2);
+    scanf("%s", str3);
+
+    printf("%s\n", str1);
+    printf("%s\n", str2);
+    printf("%s\n", str3);
+
+    return 0;
+}
+}}}
+
+
+另外，如果空格之后还有输入的话，那些内容会暂时存在input buffer中，下次调用scanf时会继续从中读取。
+参考：http://www.giannistsakiris.com/2008/02/07/scanf-and-why-you-should-avoid-using-it/
+
+注意两点，第一，后面不需要&;第二，可以使用 %8s来限制输入的最大的字符数。
+
+
+===== String =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int getStrLen(char str[]);
+
+void toUpper(char str[]);
+
+void toLower(char str[]);
+
+void addStr(char str1[], char str2[], char str3[]);
+
+int compareStr(char str1[], char str2[]);
+
+void reverseStr(char str[]);
+
+void subStr(char str1[], int pos, int sublen, char str2[]);
+
+void insertStr(char str1[], int pos, char str2[], char str3[]);
+
+int patterMatching(char str[], char pattern[]);  // only the first
+
+void deletSubStr(char str[], int pos, int len);  // 当有相邻pattern时，存在bug...
+
+int* deletSpecStr(char str[], char spec[], char newStr[]);  // return the positions of the spec pattern
+
+// 这里replacePattern实现的有问题...参考Exes20&23
+void replacePattern(char oldText[], char oldPattern[], char newPattern[], char newText[]);
+
+int main() {
+    char s1[10] = "Hello";
+    char s2[10] = "world";
+    char s3[30];
+
+    // getStrLen test
+    int len = getStrLen(s1);
+    printf("The length of '%s' is %d\n", s1, len);
+    // toUpper test
+    toUpper(s1);
+    printf("Upper: %s\n", s1);
+    // toLower test
+    toLower(s1);
+    printf("Lower: %s\n", s1);
+    // addStr test
+    addStr(s1, s2, s3);
+    printf("Added: %s\n", s3);
+    // compareStr test
+    int result = compareStr(s1, s2);
+    printf("%s v.s. %s -> %d\n", s1, s2, result);
+    // reverseStr test
+    printf("s1:%s", s1);
+    reverseStr(s1);
+    printf(" -> s1(reversed): %s\n", s1);
+    // subStr test
+    subStr(s3, 5, 5, s1);
+    printf("subStr of %s is %s\n", s3, s1);
+
+    // insertStr test
+    char str1[] = "newsman";
+    char str2[] = "paper";
+    char str3[30];
+    int pos = 4;
+    insertStr(str1, pos, str2, str3);
+    printf("After Insertion: %s\n", str3);
+
+    // patternMatching test
+    char pattern[] = "man";
+    result = patterMatching(str1, pattern);
+    printf("Matching result(with str=%s, pattern=%s): %d\n", str1, pattern, result);
+
+    // deleteSubStr test
+    printf("s3:%s", s3);
+    deletSubStr(s3, 0, 5);
+    printf(" After deletion: %s\n", s3);
+
+    // deletSpecStr test
+    char ss1[] = "Hello, how are you, Hello?";
+    char ss2[] = "Hello";
+    char ss3[30];
+    int *poses;
+    deletSpecStr(ss1, ss2, ss3);
+    printf("ss1:'%s', After delete '%s': '%s'", ss1, ss2, ss3);
+
+    // replacePattern test
+    char newPattern[] = "hello";
+    replacePattern(ss1, ss2, newPattern, ss3);
+    printf("\nss1:'%s', After replace '%s' with '%s': '%s'", ss1, ss2, newPattern, ss3);
+
+    return 0;
+}
+
+int getStrLen(char str[]) {
+    int i = 0;
+    while (str[i] != '\0')
+        i++;
+    return i;
+}
+
+void toUpper(char str[]) {
+    int i = 0;
+    while (str[i] != '\0') {
+        if ((str[i] >= 'a') && (str[i] <= 'z'))
+            str[i] = str[i] - 32;
+
+        i++;
+    }
+
+}
+
+void toLower(char str[]) {
+    int i = 0;
+    while (str[i] != '\0') {
+        if ((str[i] >= 'A') && (str[i] <= 'Z'))
+            str[i] = str[i] + 32;
+        i++;
+    }
+}
+
+void addStr(char str1[], char str2[], char str3[]) {
+    int i = 0;
+    while (str1[i] != '\0') {
+        str3[i] = str1[i];
+        i++;
+    }
+    int j = 0;
+    while (str2[j] != '\0') {
+        str3[i] = str2[j];
+        i++;
+        j++;
+    }
+    str3[i] = '\0';
+}
+
+int compareStr(char str1[], char str2[]) {
+    // equal -> 0
+    // str1 greater -> 1
+    // str2 greater -> -1
+    int len1 = getStrLen(str1);
+    int len2 = getStrLen(str2);
+    int i = 0;
+    if (len1 == len2) {
+        while (str1[i] != '\0') {
+            if (str1[i] == str2[i])
+                i++;
+            else
+                break;
+        }
+    }
+
+    if (i == len1)
+        return 0;
+    else if (str1[i] > str2[i])
+        return 1;
+    else return -1;
+
+}
+
+void reverseStr(char str[]) {
+    int i = 0;
+    int j = getStrLen(str) - 1;
+    char temp;
+    while (i < j) {
+        temp = str[i];
+        str[i] = str[j];
+        str[j] = temp;
+        i++;
+        j--;
+    }
+}
+
+void subStr(char str1[], int pos, int sublen, char str2[]) {
+    int i = pos;
+    int j = 0;
+    while (str1[i] != '\0' && sublen > 0) {
+        str2[j] = str1[i];
+        i++;
+        j++;
+        sublen--;
+    }
+}
+
+
+void insertStr(char str1[], int pos, char str2[], char str3[]) {
+    int i1 = 0, i2 = 0, i3 = 0;
+    while (str1[i1] != '\0') {
+        if (i1 == pos) {
+            while (str2[i2] != '\0') {
+                str3[i3] = str2[i2];
+                i2++;
+                i3++;
+            }
+        }
+
+        str3[i3] = str1[i1];
+        i1++;
+        i3++;
+    }
+}
+
+int patterMatching(char str[], char pattern[]) {
+    int i = 0, k = 0;
+    int match = 0;
+    int len = getStrLen(str) - getStrLen(pattern) + 1;
+    while (i < len) {
+        k = 0;
+        match = 1;
+        while (pattern[k] != '\0') {
+            if (pattern[k] != str[i + k]) {
+                match = 0;
+                i++;
+                break;
+            }
+            k++;
+        }
+        if (match == 1)
+            return i;
+    }
+    return -1;
+}
+
+void deletSubStr(char str[], int pos, int len) {
+    int i = 0, j = 0;
+    int n = getStrLen(str);
+    for (j = pos; j < (n - len); ++j) {
+        str[j] = str[j + len];
+    }
+    str[j] = '\0';
+}
+
+int *deletSpecStr(char str[], char spec[], char newStr[]) {
+    int *poses, poses_index = 0;
+    poses = malloc(10);
+    for (int j = 0; j < 10; ++j) {
+        poses[j] = -1;
+        j++;
+    }
+    int i = 0, n = 0, copyLoop = 0, k, j;
+    while (str[i] != '\0') {
+        k = copyLoop, j = 0;
+        while (str[k] == spec[j] && spec[j] != '\0') {
+            k++;
+            j++;
+        }
+        if (spec[j] == '\0') {
+            copyLoop = k;
+            poses[poses_index] = (k - j);
+            poses_index++;
+        }
+        newStr[n] = str[copyLoop];
+        i++;
+        copyLoop++;
+        n++;
+    }
+    return poses;
+
+}
+
+void replacePattern(char oldText[], char oldPattern[], char newPattern[], char newText[]) {
+    int *poses;
+    poses = deletSpecStr(oldText, oldPattern, newText);
+    int i = 0;
+    char result[30];
+    while (poses[i] != -1) {
+        insertStr(newText, poses[i], newPattern, result);
+        i++;
+        strcpy(newText, result);
+    }
+
+}
+}}}
+
+
+===== Arrays of Strings & Pointers and Strings =====
+{{{code: lang="c" linenumbers="True"
+// Arrays of Strings
+
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+void getStrings(int row, int col, char strings[row][col]);
+
+void showStrings(int row, int col, char strings[row][col]);
+
+void sortStrings(int row, int col, char strings[row][col]);
+
+void readCount();  // read mul-line strings and count the num of char, line and black space
+int isPalindrome(char str[]);  // 1:yes; 0:no
+void copyStr(char *str1, char *str2);
+
+void concatStrs(char *str1, char *str2, char *str3);
+
+int main() {
+    int row = 3;
+    int col = 10;
+    char str[row][col];
+    getStrings(row, col, str);
+    showStrings(row, col, str);
+
+    // sotStrings test
+    printf("After sorted: \n");
+    sortStrings(row, col, str);
+    showStrings(row, col, str);
+
+    // readCount test
+    readCount();
+
+    // isPalindrom test
+    char palindrom[] = "madam";
+    int result = isPalindrome(palindrom);
+    printf("result: %d", result);
+
+    // coptStr test
+    char s[10] = "Hello";
+    char copy_s[10];
+    char *ps = s;
+    char *pcopy_s = copy_s;
+    copyStr(s, copy_s);
+    printf("After copied: %s\n", copy_s);
+
+    //
+    char concat_s[20];
+    char *pconcat_s = concat_s;
+    concatStrs(ps, pcopy_s, pconcat_s);
+    printf("After concat '%s' and '%s': %s", s, copy_s, concat_s);
+    return 0;
+}
+
+
+void getStrings(int row, int col, char strings[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("Enter the name of student %d: ", i + 1);
+        scanf("%s", strings[i]);
+    }
+}
+
+void showStrings(int row, int col, char strings[row][col]) {
+    for (int i = 0; i < row; ++i) {
+        printf("The name of student %d is: %s\n", i + 1, strings[i]);
+    }
+}
+
+// bubble sort
+void sortStrings(int row, int col, char strings[row][col]) {
+    char temp[col];
+    bool sorted = false;
+    while (!sorted) {
+        sorted = true;
+        for (int i = 1; i < row; ++i) {
+            if (strcmp(strings[i - 1], strings[i]) > 0) {
+                strcpy(temp, strings[i - 1]);
+                strcpy(strings[i - 1], strings[i]);
+                strcpy(strings[i], temp);
+                sorted = false;
+            }
+        }
+        row--;
+    }
+}
+
+void readCount() {
+    printf("Enter * to end:");
+    char str[100];
+    int i = 0;
+    scanf("%c", &str[i]);
+    while (str[i] != '*') {
+        i++;
+        scanf("%c", &str[i]);
+    }
+
+    str[i] = '\0';
+    i = 0;
+    int word_count = 1, line_count = 1, char_count = 0;
+    while (str[i] != '\0') {
+        if (str[i] == '\n')
+            line_count++;
+        if (str[i] == ' ' && str[i + 1] != ' ')
+            word_count++;
+        char_count++;
+        i++;
+    }
+    printf("There are %d lines, %d words and %d characters.\n",
+           line_count, word_count, char_count);
+}
+
+int isPalindrome(char str[]) {
+    int j = (int) strlen(str) - 1;
+    int result = 1;
+    int i = 0;
+    while (str[i] != '\0' && i < j) {
+        if (str[i] != str[j]) {
+            result = 0;
+            break;
+        }
+        i++;
+        j--;
+    }
+    return result;
+}
+
+void copyStr(char *str1, char *str2) {
+    while (*str1 != '\0') {
+        *str2 = *str1;
+        str1++;
+        str2++;
+    }
+    *str2 = '\0';
+}
+
+void concatStrs(char *str1, char *str2, char *str3) {
+    while (*str1 != '\0') {
+        *str3 = *str1;
+        str1++;
+        str3++;
+    }
+    while (*str2 != '\0') {
+        *str3 = *str2;
+        str2++;
+        str3++;
+    }
+    *str3 = '\0';
+}
+}}}
+
+
+
+
