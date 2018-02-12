@@ -968,5 +968,268 @@ struct node *deleteList(struct node *start){
 }}}
 
 
-===== 4 =====
+===== 4 Circlular Double Linked List =====
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+// structure
+struct node{
+    int data;
+    struct node *prev;
+    struct node *next;
+};
+
+// init
+struct node *start = NULL;
+
+// creation
+struct node *creatCDList(struct node *start);
+
+// insertion
+struct node *insertBeg(struct node *start, int data);
+struct node *insertEnd(struct node *start, int data);
+
+// deletion
+struct node *deleteBeg(struct node *start);
+struct node *deleteEnd(struct node *start);
+struct node *deleteNode(struct node *start);
+struct node *deleteList(struct node *start);
+// tools
+void showCDList(struct node *start);
+
+// test
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+
+// creation
+struct node *creatCDList(struct node *start){
+    // if start not null...
+    if(start != NULL){
+        start = deleteList(start);
+    }
+    int data;
+    printf("Enter data(-1 to end): ");
+    scanf("%d", &data);
+    while (data != -1){
+        start = insertEnd(start, data);
+        printf("Enter data(-1 to end): ");
+        scanf("%d", &data);
+    }
+    return start;
+}
+
+// insertion
+struct node *insertBeg(struct node *start, int data){
+    struct node *new_node = (struct node*)malloc(sizeof(struct node));
+    new_node->data = data;
+    // have 0 node
+    if(start == NULL){
+        new_node->next = new_node;
+        new_node->prev = new_node;
+        start = new_node;
+        return start;
+    }
+    // have 1 or more node
+    struct node *ptr = start;
+    while (ptr->next != start)
+        ptr = ptr->next;
+
+    ptr->next = new_node;
+    new_node->prev = ptr;
+    new_node->next = start;
+    start->prev = new_node;
+    start = new_node;
+    return start;
+}
+
+struct node *insertEnd(struct node *start, int data){
+    struct node *new_node = (struct node*)malloc(sizeof(struct node));
+    new_node->data = data;
+    // have 0 node
+    if(start == NULL){
+        new_node->next = new_node;
+        new_node->prev = new_node;
+        start = new_node;
+        return start;
+    }
+    // have 1 or more node
+    struct node *ptr = start;
+    while (ptr->next != start)
+        ptr = ptr->next;
+    ptr->next = new_node;
+    new_node->prev = ptr;
+    new_node->next = start;
+    start->prev = new_node;
+    return start;
+}
+
+// deletion
+struct node *deleteBeg(struct node *start){
+    // have 0 node
+    if(start == NULL){
+        printf("\nEmpty already!");
+        return start;
+    }
+    // have 1 node
+    if(start->next == start){
+        free(start);
+        start = NULL;
+        return start;
+    }
+    // have 2 or more
+    struct node *ptr = start;
+    struct node *temp = start;
+    while (ptr->next != start)
+        ptr = ptr->next;
+    ptr->next = start->next;
+    start->next->prev = ptr;
+    start = start->next;
+    free(temp);
+    return start;
+}
+
+struct node *deleteEnd(struct node *start){
+    // have 0 node
+    if(start == NULL){
+        printf("\nEmpty already!");
+        return start;
+    }
+    // have 1 node
+    if(start->next == start){
+        free(start);
+        start = NULL;
+        return start;
+    }
+    // have 2 or more node
+    struct node *ptr = start;
+    while (ptr->next != start)
+        ptr = ptr->next;
+    ptr->prev->next = start;
+    start->prev = ptr->prev;
+    free(ptr);
+    return start;
+}
+
+struct node *deleteNode(struct node *start){
+    int val;
+    printf("Enter the val to be deleted: ");
+    scanf("%d", &val);
+    // not in
+    if(!isIn(start, val)){
+        printf("%d is NOT in the list!", val);
+        return start;
+    }
+    // at start
+    if(start->data == val){
+        start = deleteBeg(start);
+        return start;
+    }
+    struct node *ptr = start;
+    while (ptr->data != val)
+        ptr = ptr->next;
+    ptr->prev->next = ptr->next;
+    ptr->next->prev = ptr->prev;
+    free(ptr);
+    return start;
+}
+struct node *deleteList(struct node *start){
+    while (start != NULL)
+        start = deleteEnd(start);
+    return start;
+}
+
+// tools
+void showCDList(struct node *start){
+    // have 0 node
+    if(start == NULL){
+        printf("Empty List!");
+        return;
+    }
+    struct node *ptr = start;
+    printf("%d ", ptr->data);
+    ptr = ptr->next;
+    while (ptr != start){
+        printf("%d ", ptr->data);
+        ptr = ptr->next;
+    }
+}
+
+int isIn(struct node *start, int data){
+    if(start == NULL)
+        return 0;
+    if(start->data == data)
+        return 1;
+    struct node *ptr = start->next;
+    while (ptr != start){
+        if(ptr->data == data)
+            return 1;
+        ptr = ptr->next;
+    }
+    return 0;
+}
+
+// test
+void test(){
+    int data;
+    int option;
+    do{
+        printf("\n***MENU***");
+        printf("\n1. create a list");
+        printf("\n2. show a list");
+        printf("\n3. insert at beg");
+        printf("\n4. insert at end");
+        printf("\n5. delete at beg");
+        printf("\n6. delete at end");
+        printf("\n7. delete node");
+        printf("\n8. delete list");
+        printf("\nEnter -1 to exit");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option){
+            case 1:
+                printf("create a list...\n");
+                start = creatCDList(start);
+                break;
+            case 2:
+                showCDList(start);
+                break;
+            case 3:
+                printf("Enter data(insert beg): ");
+                scanf("%d", &data);
+                start = insertBeg(start, data);
+                break;
+            case 4:
+                printf("Enter data(insert end): ");
+                scanf("%d", &data);
+                start = insertEnd(start, data);
+                break;
+            case 5:
+                printf("Delte at beg");
+                start = deleteBeg(start);
+                break;
+            case 6:
+                printf("Delete at end");
+                start = deleteEnd(start);
+                break;
+            case 7:
+                start = deleteNode(start);
+                break;
+            case 8:
+                start = deleteList(start);
+                break;
+        }
+
+    }while(option != -1);
+}
+}}}
+
+
+===== 5 =====
 
