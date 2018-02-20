@@ -1,0 +1,997 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-12T18:09:55+08:00
+
+====== Content ======
+Created 星期一 12 二月 2018
+
+===== 8.2 ARRAY REPRESENTATION OF QUEUEs =====
+The process of inserting an element in the queue is called enqueue, and the process of deleting an element from the queue is called dequeue.
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 10
+
+// init
+int queue[MAX];
+int front = -1, rear = -1;
+// operations
+void insert(void);
+int delete_element(void);
+int peek(void);
+void display(void);
+// test
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+// operations
+void insert(void){
+    // overflow check
+    if (rear == MAX-1){
+        printf("OVERFLOW");
+        return;
+    }
+    int num;
+    printf("Enter the number to be inserted in the queue: ");
+    scanf("%d", &num);
+    // empty
+    if (front == -1 && rear == -1)
+        front = rear = 0;
+    else
+        rear++;
+    queue[rear] = num;
+}
+
+int delete_element(void){
+    int val;
+    if(front == -1 || front > rear)
+    {
+        printf("UNDERFLOW");
+        return -1;
+    }
+    else
+    {
+        val = queue[front];
+        front++;
+        // 只有一个元素时, front=rear=0, delete后, front=1>rear=0
+        // 此事queue为空，故置front=rear=-1
+        if(front > rear)
+            front = rear = -1;
+        return val;
+    }
+}
+
+int peek(void){
+    // empty
+    if(front == -1 || front > rear)
+    {
+        printf("QUEUE IS EMPTY");
+        return -1;
+    }
+    return queue[front];
+}
+
+void display(void){
+    int i;
+    if(front == -1 || front > rear)
+        printf("QUEUE IS EMPTY");
+    for (int j = 0; j <= rear; ++j) {
+        printf("%d ", queue[j]);
+    }
+}
+// test
+void test(){
+    int option, val;
+    do
+    {
+        printf("\n***MAIN MENU***");
+        printf("\n1. Insert an element");
+        printf("\n2. Delete an element");
+        printf("\n3. Peek");																							
+        printf("\n4. Display the queue");
+        printf("\n5. EXIT");
+        printf("\nEnter yout option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                insert();
+                break;
+            case 2:
+                val = delete_element();
+                if(val != -1)
+                    printf("The number deleted is: %d", val);
+                break;
+            case 3:
+                val = peek();
+                if(val != -1)
+                    printf("The first value int the queue is: %d", val);
+                break;
+            case 4:
+                display();
+                break;
+        }
+
+    }while (option != 5);
+}
+}}}
+
+
+===== 8.3 LINKED REPRESENTATION OF QUEUES =====
+
+=== 注意1: 关于全局变量的声明 ===
+
+{{{code: lang="c" linenumbers="True"
+// code1
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+    int data;
+    struct node *next;
+};
+struct queue
+{
+    struct node *front;
+    struct node *rear;
+};
+}}}
+
+首先，我是想在初始化一个全局变量，这里是q，如下：
+{{{code: lang="c" linenumbers="True"
+// code1...
+struct queue *q;
+q->front = NULL;
+q->rear = NULL;
+// int main(){...}
+}}}
+
+很明显，q只是一个指针，并没有分配内存，所以这样会造成内存错误，所以想到用malloc来分配内存。
+{{{code: lang="c" linenumbers="True"
+// code1...
+struct queue *q;
+q = (struct queue*)malloc(sizeof(struct queue));
+q->front = NULL;
+q->rear = NULL;
+// int main(){...}
+}}}
+
+然而这样也是不行的，因为**You can't execute code outside of functions. The only thing you can do at global scope is declaring variables (and initialize them with compile-time constants).malloc is a function call, so that's invalid outside a function.（参考:**[[https://stackoverflow.com/questions/6742820/malloc-function-dynamic-memory-allocation-resulting-in-an-error-when-it-is-use|stackoverflow]]**）**
+
+所以,我们只要在函数内调用malloc函数为q分配内存就可以了。
+{{{code: lang="c" linenumbers="True"
+void initQueue(struct queue *q){
+    q->front = NULL;
+    q->rear = NULL;
+}
+// ...
+void test(){
+    int option, data;
+    q = (struct queue*)malloc(sizeof(struct queue));
+    initQueue(q);
+    // ...
+}}}
+
+
+此外，还有另外一种方法
+{{{code: lang="c" linenumbers="True"
+// code1...
+// Another way to do the initialization(in global)
+struct queue q1 = {NULL, NULL};
+struct queue *q = &q1;
+// int main(){...}
+}}}
+
+
+=== 注意2: 关于dynamic var的lifetime ===
+这里注意对下面这句话的理解：**The lifetime is under the control of the programmer rather than the C run-time system. （参考：**[[http://datahonor.com/2018/01/24/Dangling-pointer-and-Lifetime/|Dangling-pointer-and-Lifetime]]**） **我们在任意函数中使用malloc创造出dynamic var之后，只要我们不free掉那块内存，那么我们就可以在其他函数中任意操作这块内存的数据（也就是lifetime由我们来控制，在执行malloc和free之间的这块时间就是它的lifetime），当然，**前提是我们必须保证此块内存地址不被丢失（如果丢失了，那么那块内存就无法得到释放，也无法继续使用，造成资源的浪费）**。
+
+单链表实现queue的完整代码如下：
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+    int data;
+    struct node *next;
+};
+struct queue
+{
+    struct node *front;
+    struct node *rear;
+};
+
+// Another way to do the initialization(in global)
+//struct queue q1 = {NULL, NULL};
+//struct queue *q = &q1;
+
+// operations
+void initQueue(struct queue *q);
+struct queue *insert(struct queue *q, int data);
+struct queue *deleteElement(struct queue *q);
+int peek(struct queue *q);
+void displayQueue(struct queue *q);
+// test
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+// operations
+void initQueue(struct queue *q){
+    q->front = NULL;
+    q->rear = NULL;
+}
+
+struct queue *insert(struct queue *q, int data){
+    struct node *new_node;
+    new_node = (struct node*)malloc(sizeof(struct node));
+    new_node->data = data;
+    new_node->next = NULL;
+    // if empty
+    if(q->front == NULL){
+        q->front = new_node;
+        q->rear = new_node;
+        return q;
+    }
+    q->rear->next = new_node;
+    q->rear = new_node;
+    return q;
+}
+
+struct queue *deleteElement(struct queue *q){
+    // if empty
+    if(q->front == NULL){
+        printf("Empty!");
+        return q;
+    }
+    // if only one element
+    if(q->front->next == NULL){
+        free(q->front);
+        q->front = NULL;
+        q->rear = NULL;
+        return q;
+    }
+    // 2 or more element
+    struct node *temp;
+    temp = q->front;
+    q->front = q->front->next;
+    free(temp);
+    return q;
+}
+
+int peek(struct queue *q){
+    if(q->front == NULL){
+        printf("Empty!");
+        return -1;
+    }
+    return q->front->data;
+}
+void displayQueue(struct queue *q){
+    if(q->front == NULL){
+        printf("Empty!");
+        return;
+    }
+    struct node *ptr = q->front;
+    while (ptr != NULL){
+        printf("%d ", ptr->data);
+        ptr = ptr->next;
+    }
+}
+// test
+void test(){
+    int option, data;
+    struct queue *q;
+    q = (struct queue*)malloc(sizeof(struct queue));
+    initQueue(q);
+    do
+    {
+        printf("\n***MAIN MENU***");
+        printf("\n1. Insert an element");
+        printf("\n2. Delete an element");
+        printf("\n3. Peek");
+        printf("\n4. Display the queue");
+        printf("\n5. EXIT");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                printf("Enter data to insert to the queue: ");
+                scanf("%d", &data);
+                q = insert(q, data);
+                break;
+            case 2:
+                q = deleteElement(q);
+                break;
+            case 3:
+                data = peek(q);
+                if(data != -1)
+                    printf("The first value int the queue is: %d", data);
+                break;
+            case 4:
+                displayQueue(q);
+                break;
+        }
+
+    }while (option != 5);
+}
+}}}
+
+
+===== 8.4.1 Circular Queues =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 10
+
+// init
+int queue[MAX];
+int front = -1, rear = -1;
+// operations
+void insert(void);
+int delete_element(void);
+int peek(void);
+void display(void);
+// test
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+// operations
+void insert(void){
+    int num;
+    printf("Enter the number to be inserted in the queue: ");
+    scanf("%d", &num);
+    // overflow check
+    if(front == 0 && rear == MAX-1){
+        printf("OVERFLOW");
+    }
+    else if(front == -1 && rear == -1) // empty
+    {
+        front = rear = 0;
+        queue[rear] = num;
+    }
+    else if(rear == MAX-1 && front != 0)
+    {
+        rear = 0;
+        queue[rear] = num;
+    }
+    else
+    {
+        rear++;
+        queue[rear] = num;
+    }
+}
+
+int delete_element(void){
+    // underflow check
+    if(front == -1 && rear == -1)
+    {
+        printf("UNDERFLOW");
+        return -1;
+    }
+    int val;
+    val = queue[rear];
+    // have 1 ele
+    if(front == rear){
+        front = rear = -1;
+    }
+    else
+    {
+        if(front == MAX-1)
+            front = 0;
+        else
+            front++;
+    }
+    return val;
+}
+
+int peek(void){
+    // underflow check
+    if(front == -1 && rear == -1){
+        printf("QUEUE IS EMPTY");
+        return -1;
+    }
+    return queue[front];
+}
+
+void display(void){
+    int i;
+    if(front == -1 && rear == -1)
+        printf("QUEUE IS EMPTY");
+    else
+    {
+        if(front == rear) // have 1 ele
+            printf("%d", queue[front]);
+        else if(front < rear)
+        {
+            for (int j = front; j <= rear; ++j)
+                printf("%d ", queue[j]);
+
+        }
+        else
+        {
+            for (int j = front; j < MAX; ++j)
+                printf("%d ", queue[j]);
+            for (int k = 0; k <= rear ; ++k)
+                printf("%d ", queue[k]);
+
+        }
+    }
+}
+// test
+void test(){
+    int option, val;
+    do
+    {
+        printf("\n***MAIN MENU***");
+        printf("\n1. Insert an element");
+        printf("\n2. Delete an element");
+        printf("\n3. Peek");
+        printf("\n4. Display the queue");
+        printf("\n5. EXIT");
+        printf("\nEnter yout option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                insert();
+                break;
+            case 2:
+                val = delete_element();
+                if(val != -1)
+                    printf("The number deleted is: %d", val);
+                break;
+            case 3:
+                val = peek();
+                if(val != -1)
+                    printf("The first value int the queue is: %d", val);
+                break;
+            case 4:
+                display();
+                break;
+        }
+
+    }while (option != 5);
+}
+}}}
+
+
+===== 8.4.2 Deques =====
+{{./pasted_image001.png}}
+
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 10
+int deque[MAX];
+int left = -1, right = -1;
+void input_deque(void);
+void outpu_deque(void);
+void insert_left(void);
+void insert_right(void);
+void delete_left(void);
+void delete_right(void);
+void display(void);
+
+int main(){
+    int option;
+    printf("***MAIN MENU***");
+    printf("\n1. Input restricted deque");
+    printf("\n2. Output restricted deque");
+    printf("\nEnter your option: ");
+    scanf("%d", &option);
+    switch (option)
+    {
+        case 1:
+            input_deque();
+            break;
+        case 2:
+            outpu_deque();
+            break;
+    }
+    return 0;
+}
+
+void input_deque(void){
+    int option;
+    do
+    {
+        printf("\n INPUT RESTRICTED DEQUE");
+        printf("\n 1.Insert at right");
+        printf("\n 2.Delete from left");
+        printf("\n 3.Delete from right");
+        printf("\n 4.Display");
+        printf("\n 5.Quit");
+        printf("\n Enter your option : ");
+        scanf("%d",&option);
+        switch(option)
+        {
+            case 1:
+                insert_right();
+                break;
+            case 2:
+                delete_left();
+                break;
+            case 3:
+                delete_right();
+                break;
+            case 4:
+                display();
+                break;
+        }
+    }while(option!=5);
+}
+
+void outpu_deque(void){
+    int option;
+    do
+    {
+        printf("\n OUTPUT RESTRICTED DEQUE");
+        printf("\n 1.Insert at right");
+        printf("\n 2.Insert at left");
+        printf("\n 3.Delete from left");
+        printf("\n 4.Display");
+        printf("\n 5.Quit");
+        printf("\n Enter your option : ");
+        scanf("%d",&option);
+        switch(option)
+        {
+            case 1:
+                insert_right();
+                break;
+            case 2:
+                insert_left();
+                break;
+            case 3:
+                delete_left();
+                break;
+            case 4:
+                display();
+                break;
+        }
+    }while(option!=5);
+}
+void insert_left(void){
+    int val;
+    printf("Enter the value to be added: ");
+    scanf("%d", &val);
+    if((left == 0 && right == MAX-1) || (left == right+1))
+    {
+        printf("OVERFLOW");
+        return;
+    }
+    if(left == -1)  // If queue is initially empty
+    {
+        left = 0;
+        right = 0;
+    }
+    else
+    {
+        if(left == 0)
+            left = MAX - 1;
+        else
+            left = left - 1;
+    }
+    deque[left] = val;
+}
+
+void insert_right(void){
+    int val;
+    printf("Enter the value to be added: ");
+    scanf("%d", &val);
+    if ((left == 0 && right == MAX -1) || (left == right + 1)){
+        printf("OVERFLOW");
+        return;
+    }
+    if(left == -1) // if queue is initially empty
+        left = right = 0;
+    else
+    {
+        if(right == MAX -1) // right is at last  position of queue
+            right = 0;
+        else
+            right += 1;
+    }
+    deque[right] = val;
+    printf("left:%d, right:%d\n", left, right);
+
+}
+
+void delete_left(void){
+    if(left == -1){
+        printf("UNDERFLOW");
+        return;
+    }
+    printf("The deleted element is: %d", deque[left]);
+    if(left == right)  // Queue has only one element
+        left = right = -1;
+    else
+    {
+        if (left == MAX - 1)
+            left = 0;
+        else
+            left = left + 1;
+    }
+}
+
+void delete_right(void){
+    if(left == -1){
+        printf("UNDERFLOW");
+        return;
+    }
+    printf("The element deleted is: %d", deque[right]);
+    if(left == right)  // queue has only one element
+        right = left = -1;
+    else
+    {
+        if(right == 0)
+            right = MAX - 1;
+        else
+            right = right - 1;
+    }
+}
+void display(void){
+    int front = left, rear = right;
+    if (front == -1){
+        printf("QUEUE IS EMPTY");
+        return;
+    }
+    printf("The elements of the queue are: ");
+    if(front <= rear)
+    {
+        while (front <= rear)
+        {
+            printf("%d ", deque[front]);
+            front++;
+        }
+    }
+    else
+    {
+        while (front <= MAX - 1)
+        {
+            printf("%d ", deque[front]);
+            front++;
+        }
+        front = 0;
+        while (front <= rear)
+        {
+            printf("%d ", deque[front]);
+            front++;
+        }
+    }
+    printf("\n");
+}
+
+}}}
+
+
+
+===== 8.4.3 Priority Queues =====
+
+=== Liniked list representation of priority queue ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    int priority;
+    struct node *next;
+};
+
+// initialization
+struct node *start = NULL;
+// operations
+struct node *insert(struct node *start);
+struct node *delete(struct node *start);
+void display(struct node *start);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+struct node *insert(struct node *start){
+    int val, pri;
+    struct node *ptr, *p;
+    ptr = (struct node *)malloc(sizeof(struct node));
+    printf("Enter the value and its priority: ");
+    scanf("%d %d", &val, &pri);
+    ptr->data = val;
+    ptr->priority = pri;
+    if(start == NULL || pri < start->priority)
+    {
+        ptr->next = start;
+        start = ptr;
+    }
+    else
+    {
+        p = start;
+        while (p->next != NULL && p->next->priority <= pri)
+            p = p->next;
+        ptr->next = p->next;
+        p->next = ptr;
+    }
+    return start;
+}
+
+struct node *delete(struct node *start){
+    struct node *ptr;
+    if(start == NULL){
+        printf("UNDERFLOW");
+        return start;
+    }
+    ptr = start;
+    printf("Deleted item is: %d", ptr->data);
+    start = start->next;
+    free(ptr);
+    return start;
+}
+
+void display(struct node *start){
+    if(start == NULL){
+        printf("QUEUE IS EMPTY");
+        return;
+    }
+    struct node *ptr = start;
+    printf("PRIORITY QUEUE IS: ");
+    while (ptr != NULL){
+        printf("%d[priority=%d] ", ptr->data, ptr->priority);
+        ptr = ptr->next;
+    }
+}
+
+void test(){
+    int option;
+    do
+    {
+        printf("\n***MAIN MENU***");
+        printf("\n1. INSERT");
+        printf("\n2. DELETE");
+        printf("\n3. DISPLAY");
+        printf("\n4. EXIT");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                start = insert(start);
+                break;
+            case 2:
+                start = delete(start);
+                break;
+            case 3:
+                display(start);
+                break;
+        }
+
+    }while (option != 4);
+}
+}}}
+
+
+
+=== 8.4.4 Multiple Queues ===
+
+{{./pasted_image.png}}
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 10
+
+int QUEUE[MAX], rearA=-1, frontA=-1, rearB = MAX, frontB = MAX;
+void insertA(int val);
+int deleteA();
+void display_queueA();
+
+void insertB(int val);
+int deleteB();
+void display_queueB();
+
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void insertA(int val){
+    // overflow check
+    if(rearA == frontB-1)
+        printf("OVERFLOW");
+    else
+    {
+        if(frontA == -1 && rearA == -1)
+        {
+            frontA = rearA = 0;
+            QUEUE[rearA] = val;
+        }
+        else
+        {
+            // QUEUE[++rearA] = val;
+            rearA += 1;
+            QUEUE[rearA] = val;
+        }
+    }
+}
+int deleteA(){
+    // underflow check
+    if(frontA == -1){
+        printf("UNDERFLOW");
+        return -1;
+    }
+    int val;
+    val = QUEUE[frontA];
+    frontA++;
+    if(frontA > rearA)  // 仅有一个元素且被删除后
+        frontA = rearA = -1;
+    return val;
+}
+void display_queueA(){
+    if(frontA == -1 && rearA == -1){
+        printf("QUEUE A IS EMPTY");
+        return;
+    }
+    for (int i = frontA; i <= rearA; ++i) {
+        printf("%d ", QUEUE[i]);
+    }
+}
+
+void insertB(int val){
+    // overflow check
+    if(rearB == rearA + 1){
+        printf("OVERFLOW");
+        return;
+    }
+    if(frontB == MAX && rearB == MAX){
+        frontB = rearB = MAX-1;
+        QUEUE[rearB] = val;
+        return;
+    }
+    QUEUE[--rearB] = val;
+}
+int deleteB(){
+    // underflow check
+    if(frontB == MAX){
+        printf("UNDERFLOW");
+        return -1;
+    }
+    int val;
+    val = QUEUE[frontB];
+    frontB--;
+    if(frontB < rearB)
+        frontB = rearB = MAX;
+    return val;
+}
+
+void display_queueB(){
+    if(frontB == MAX){
+        printf("QUEUE B IS EMPTY");
+        return;
+    }
+    for (int i = MAX-1; i >= rearB ; --i) {
+        printf("%d ", QUEUE[i]);
+    }
+}
+
+void test(){
+
+    int option, val;
+    do
+    {
+        printf("\n *******MENU******");
+
+        printf("\n 1. INSERT IN QUEUE A");
+
+        printf("\n 2. INSERT IN QUEUE B");
+
+        printf("\n 3. DELETE FROM QUEUE A");
+
+        printf("\n 4. DELETE FROM QUEUE B");
+
+        printf("\n 5. DISPLAY QUEUE A");
+
+        printf("\n 6. DISPLAY QUEUE B");
+
+        printf("\n 7. EXIT");
+
+        printf("\n Enter your option : ");
+        scanf("%d",&option);
+
+        switch(option)
+        {
+            case 1:
+                printf("\n Enter the value to be inserted in Queue A : ");
+                scanf("%d",&val);
+                insertA(val);
+                break;
+
+            case 2:
+                printf("\n Enter the value to be inserted in Queue B : ");
+                scanf("%d",&val);
+                insertB(val);
+                break;
+            case 3:
+                val=deleteA();
+                if(val!=-1)
+                    printf("\n The value deleted from Queue A = %d",val);
+                break;
+            case 4 :
+                val=deleteB();
+                if(val!=-1)
+                    printf("\n The value deleted from Queue B = %d",val);
+                break;
+            case 5:
+                printf("\n The contents of Queue A are : \n");
+                display_queueA();
+                break;
+            case 6:
+                printf("\n The contents of Queue B are : \n");
+                display_queueB();
+                break;
+        }
+
+    }while(option!=7);
+
+}
+}}}
+
+
+
+===== Josephus Problem =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int player_id;
+    struct node *next;
+};
+
+struct node *start, *ptr, *new_node;
+
+int main(){
+    int n, k;
+    printf("Enter the number of players: ");
+    scanf("%d", &n);
+    printf("Enter the value of k(every kth player gets eliminated): ");
+    scanf("%d", &k);
+    // Create circular linked list containing all the players
+    start = malloc(sizeof(struct node));
+    ptr = start;
+    for (int i = 2; i <= n; ++i) {
+        new_node = malloc(sizeof(struct node));
+        ptr->next = new_node;
+        new_node->player_id = i;
+        new_node->next = start;
+        ptr = new_node;
+    }
+    for (int count = n; count > 1 ; count--) {
+        for (int i = 0; i < k-1 ; ++i)
+            ptr = ptr->next;
+        // remove the player form circular linked list
+        ptr->next = ptr->next->next;
+    }
+    printf("The winnder is player %d", ptr->player_id);
+    return 0;
+
+}
+}}}
+
+
+
+
+
+

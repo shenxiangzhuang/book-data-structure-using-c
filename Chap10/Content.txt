@@ -1,0 +1,610 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-15T12:34:31+08:00
+
+====== Content ======
+Created 星期四 15 二月 2018
+
+===== 10.2 Operations on Binary Search Trees =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+// init
+struct node *tree;
+
+// operations
+void create_tree(struct node *tree);
+struct node *insertElement(struct node *tree, int data);
+void preorderTraversal(struct node *tree);
+void inorderTraversal(struct node *tree);
+void postorderTraversal(struct node *tree);
+struct node *findSmallestElement(struct node*tree);
+struct node *findLargestElement(struct node*tree);
+struct node *deleteElement(struct node *tree, int data);
+struct node *mirrorImage(struct node *tree);
+// properties
+int totalNodes(struct node *tree);
+int totalExternalNodes(struct node *tree);
+int totalInternalNodes(struct node *tree);
+int Height(struct node *tree);
+struct node *deleteTree(struct node *tree);
+
+
+
+// tools
+int max(int x, int y);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+// operations
+void create_tree(struct node *tree){
+    tree = NULL;
+}
+
+struct node *insertElement(struct node *tree, int data){
+    if(tree == NULL){
+        tree = (struct node*)malloc(sizeof(struct node));
+        tree->data = data;
+        tree->left = NULL;
+        tree->right = NULL;
+    }
+    else if(data <= tree->data)
+        tree->left = insertElement(tree->left, data);
+    else
+        tree->right = insertElement(tree->right, data);
+    return tree;
+}
+
+void preorderTraversal(struct node *tree){
+    if(tree == NULL)
+        return;
+    else{
+        printf("%d ", tree->data);
+        preorderTraversal(tree->left);
+        preorderTraversal(tree->right);
+    }
+}
+
+void inorderTraversal(struct node *tree){
+    if(tree == NULL)
+        return;
+    preorderTraversal(tree->left);
+    printf("%d ", tree->data);
+    preorderTraversal(tree->right);
+}
+void postorderTraversal(struct node *tree){
+    if(tree == NULL)
+        return;
+    preorderTraversal(tree->left);
+    preorderTraversal(tree->right);
+    printf("%d ", tree->data);
+}
+struct node *findSmallestElement(struct node*tree){
+    if(tree == NULL || tree->left == NULL)
+        return tree;
+    return findSmallestElement(tree->left);
+}
+struct node *findLargestElement(struct node*tree){
+    if(tree == NULL || tree->right == NULL)
+        return tree;
+    return findLargestElement(tree->right);
+}
+struct node *deleteElement(struct node *tree, int data){
+    if(tree == NULL)
+        return tree;
+    else if(data < tree->data)
+        tree->left = deleteElement(tree->left, data);
+    else if(data > tree->data)
+        tree->right = deleteElement(tree->right, data);
+    else
+    {
+        // case1: No child
+        if(tree->left == NULL && tree->right == NULL){
+            free(tree);
+            tree = NULL;
+            return tree;
+        }
+            // case2: One child
+        else if(tree->left == NULL){
+            struct node *temp = tree;
+            tree = tree->right;
+            free(temp);
+        }
+
+        else if(tree->right == NULL){
+            struct node *temp = tree;
+            tree = tree->left;
+            free(temp);
+        }
+            // case3: Tow childs
+        else
+        {
+            struct node *temp;
+            temp = findSmallestElement(tree->right);
+            tree->data = temp->data;
+            deleteElement(tree->right, temp->data);
+        }
+
+    }
+    return tree;
+
+}
+struct node *mirrorImage(struct node *tree){
+    if(tree == NULL)
+        return tree;
+    tree->left = mirrorImage(tree->left);
+    tree->right = mirrorImage(tree->right);
+    struct node *temp;
+    temp = tree->left;
+    tree->left = tree->right;
+    tree->right = temp;
+    return tree;
+}
+// properties
+int totalNodes(struct node *tree){
+    if(tree == NULL)
+        return 0;
+    return totalNodes(tree->left) + totalNodes(tree->right) + 1;
+}
+int totalExternalNodes(struct node *tree){
+    if(tree == NULL)
+        return 0;
+    else if((tree->left == NULL) && (tree->right) == NULL)
+        return 1;
+    else
+        return (totalExternalNodes(tree->left)+totalExternalNodes(tree->right));
+}
+int totalInternalNodes(struct node *tree){
+    if(tree == NULL || ((tree->left == NULL) && (tree->right == NULL)))
+        return 0;
+    else
+        return (totalInternalNodes(tree->left)+totalInternalNodes(tree->right)+1);
+
+}
+
+int max(int x, int y) {
+    if(x <= y)
+        return y;
+    else
+        return x;
+}
+
+int Height(struct node *tree){
+    if(tree == NULL)
+        return 0;
+    else
+        return (max(Height(tree->left), Height(tree->right))+1);
+}
+
+
+struct node *deleteTree(struct node *tree){
+    if (tree == NULL)
+        return tree;
+    else{
+        tree->left = deleteTree(tree->left);
+        tree->right = deleteTree(tree->right);
+        free(tree);
+    }
+}
+
+
+
+// tools
+void test(){
+    int option, val;
+    struct node *ptr;
+    create_tree(tree);
+    do
+    {
+        printf("\n ******MAIN MENU******* \n");
+
+        printf("\n 1. Insert Element");
+
+        printf("\n 2. Preorder Traversal");
+
+        printf("\n 3. Inorder Traversal");
+
+        printf("\n 4. Postorder Traversal");
+
+        printf("\n 5. Find the smallest element");
+
+        printf("\n 6. Find the largest element");
+
+        printf("\n 7. Delete an element");
+
+        printf("\n 8. Count the total number of nodes");
+
+        printf("\n 9. Count the total number of external nodes");
+
+        printf("\n 10. Count the total number of internal nodes");
+
+        printf("\n 11. Determine the height of the tree");
+
+        printf("\n 12. Find the mirror image of the tree");
+
+        printf("\n 13. Delete the tree");
+
+        printf("\n 14. Exit");
+
+        printf("\n\n Enter your option : ");
+        scanf("%d", &option);
+        switch(option)
+        {
+            case 1:
+                printf("\n Enter the value of the new node : ");
+                scanf("%d", &val);
+                tree = insertElement(tree, val);
+                break;
+            case 2:
+                printf("\n The elements of the tree are : \n");
+                preorderTraversal(tree);
+                break;
+            case 3:
+                printf("\n The elements of the tree are : \n");
+                inorderTraversal(tree);
+                break;
+            case 4:
+                printf("\n The elements of the tree are : \n");
+                postorderTraversal(tree);
+                break;
+            case 5:
+                ptr = findSmallestElement(tree);
+                printf("\n Smallest element is :%d",ptr->data);
+                break;
+            case 6:
+                ptr = findLargestElement(tree);
+                printf("\n Largest element is : %d", ptr->data);
+                break;
+            case 7:
+                printf("\n Enter the element to be deleted : ");
+                scanf("%d", &val);
+                tree = deleteElement(tree, val);
+                break;
+            case 8:
+                printf("\n Total no. of nodes = %d", totalNodes(tree));
+                break;
+            case 9:
+                printf("\n Total no. of external nodes = %d",
+                       totalExternalNodes(tree));
+                break;
+            case 10:
+                printf("\n Total no. of internal nodes = %d",
+
+                       totalInternalNodes(tree));
+                break;
+            case 11:
+                printf("\n The height of the tree = %d",Height(tree));
+                break;
+            case 12:
+                tree = mirrorImage(tree);
+                break;
+            case 13:
+                tree = deleteTree(tree);
+                break;
+        }
+    }while(option!=14);
+}
+
+
+
+
+}}}
+
+
+===== 10.3 Threaded Binary Trees =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct tree
+{
+    int val;
+    struct tree *right;
+    struct tree *left;
+    int thread;
+};
+
+struct tree *root = NULL;
+struct tree *insert_node(struct tree *root, struct tree *ptr,
+                            struct tree *rt);
+struct tree *create_threaded_tree();
+void inorder(struct tree *root);
+
+int main(){
+    create_threaded_tree();
+    printf("The in-order traversal of the tree can be given as: ");
+    inorder(root);
+    return 0;
+}
+
+struct tree *insert_node(struct tree *root, struct tree *ptr,
+                         struct tree *rt){  // rt代便right
+    if(root == NULL)
+    {
+        root = ptr;
+        if(rt != NULL){  // if h rt, then set the node threaded and connect with next node
+            root->right = rt;
+            root->thread = 1;
+        }
+    }
+    else if(ptr->val < root->val)
+        root->left = insert_node(root->left, ptr, root);
+    else
+    {
+        if(root->thread == 1)
+        {
+            root->right = insert_node(NULL, ptr, rt);
+            root->thread = 0;
+        }
+        else
+            root->right = insert_node(root->right, ptr, rt);
+    }
+    return root;
+}
+struct tree *create_threaded_tree(){
+    struct tree *ptr;
+    int num;
+    printf("Enter the elements, press -1 to terminate: ");
+    scanf("%d", &num);
+    while (num != -1)
+    {
+        ptr = (struct tree*)malloc(sizeof(struct tree));
+        ptr->val  = num;
+        ptr->thread = 0;
+        root = insert_node(root, ptr, NULL);
+        printf("Enter the next element: ");
+        scanf("%d", &num);
+    }
+    return root;
+}
+void inorder(struct tree *root)
+{
+    struct tree *ptr = root, *prev;
+    do
+    {
+        // 先到达最左元素
+        while (ptr != NULL)
+        {
+            prev = ptr;
+            ptr = ptr->left;
+        }
+        // 回溯打印左枝元素
+        if(prev != NULL)
+        {
+            printf("%d ", prev->val);
+            ptr = prev->right;
+            while (prev != NULL && prev->thread)
+            {
+                printf("%d", ptr->val);
+                prev = ptr;
+                ptr = ptr->right;
+            }
+        }
+    }while (ptr != NULL);  // 打印完（root的）左枝的元素会跳出循环，继续打印右枝的元素
+}
+
+}}}
+
+
+===== 10.4 AVL Tree =====
+尽管改正很多书上的代码，但是代码仍然有bug...先抄在这里，有时间回来改（参考[[https://rosettacode.org/wiki/AVL_tree|Rosetta]]）
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef enum {FALSE, TRUE} bool;
+
+struct node
+{
+    int val;
+    int balance;
+    struct node *left_child;
+    struct node *right_child;
+};
+
+struct node *search(struct node *ptr, int data);
+struct node *insert(int data, struct node *ptr, int *ht_inc);
+void display(struct node *ptr, int level);
+void inorder(struct node *ptr);
+void test();
+
+int main(){
+    test();
+}
+
+struct node *search(struct node *ptr, int data){
+    if(ptr != NULL)
+    {
+        if(data < ptr->val)
+            ptr = search(ptr->left_child, data);
+        else if(data > ptr->val)
+            ptr = search(ptr->right_child, data);
+        return ptr;
+    }
+}
+
+struct node *insert(int data, struct node *ptr, int *ht_inc){
+    struct node *aptr;
+    struct node *bptr;
+    if(ptr == NULL)
+    {
+        ptr = (struct node*)malloc(sizeof(struct node));
+        ptr->val = data;
+        ptr->left_child = NULL;
+        ptr->right_child = NULL;
+        ptr->balance = 0;
+        *ht_inc = TRUE;
+        return ptr;
+    }
+    if(data < ptr->val)
+    {
+        ptr->left_child = insert(data, ptr->left_child, ht_inc);
+        if(*ht_inc == TRUE)
+        {
+            switch (ptr->balance)
+            {
+                case -1:  // Right heavy
+                    ptr->balance = 0;
+                    break;
+                case 1:  // left heavy
+                    aptr = ptr->left_child;
+                    if(aptr->balance == 1)
+                    {
+                        printf("LL Rotation");
+                        ptr->left_child = aptr->right_child;
+                        aptr->right_child = ptr;
+                        ptr->balance = 0;
+                        aptr->balance = 0;
+                        ptr = aptr;
+                    }
+                    else
+                    {
+                        printf("LR Rotation");
+                        bptr = aptr->right_child;
+                        aptr->right_child = bptr->left_child;
+                        bptr->left_child = aptr;
+                        bptr->right_child = ptr;
+                        if(bptr->balance == 1)
+                            ptr->balance = -1;
+                        else
+                            ptr->balance = 0;
+                        if(bptr->balance == -1)
+                            aptr->balance = 1;
+                        else
+                            aptr->balance = 0;
+                        bptr->balance = 0;
+                        ptr = bptr;
+                    }
+                    *ht_inc = FALSE;
+            }
+        }
+    }
+    if(data > ptr->val) {
+        ptr->right_child = insert(data, ptr->right_child, ht_inc);
+        if (*ht_inc == TRUE) {
+            switch (ptr->balance) {
+                case 1:  // left heavy
+                    ptr->balance = 0;
+                    *ht_inc = FALSE;
+                    break;
+                case 0:  // balanced
+                    ptr->balance = -1;
+                    break;
+                case -1:  // Right heavy
+                    aptr = ptr->right_child;
+                    if (aptr->balance == -1) {
+                        printf("RR Rotation");
+                        ptr->right_child = aptr->left_child;
+                        ptr->balance = 0;
+                        aptr->balance = 0;
+                        ptr = aptr;
+                    } else {
+                        printf("RL Rotation");
+                        bptr = aptr->left_child;
+                        aptr->left_child = bptr->right_child;
+                        bptr->right_child = aptr;
+                        ptr->right_child = bptr->left_child;
+                        bptr->left_child = ptr;  // !!!
+                        if (bptr->balance == -1)
+                            ptr->balance = 1;
+                        else
+                            ptr->balance = 0;
+                        if (bptr->balance == 1)
+                            aptr->balance = -1;
+                        else
+                            aptr->balance = 0;
+                        bptr->balance = 0;
+                        ptr = bptr;
+                    }
+                    *ht_inc = FALSE;
+
+            }
+        }
+    }
+    return ptr;
+}
+
+void display(struct node *ptr, int level){
+    int i;
+    if(ptr != NULL){
+        display(ptr->left_child, level+1);
+        printf("\n");
+        for (int i = 0; i < level; ++i)
+            printf(" ");
+        printf("%d", ptr->val);
+        display(ptr->right_child, level+1);
+
+    }
+}
+void inorder(struct node *ptr){
+    if(ptr != NULL){
+        inorder(ptr->left_child);
+        printf("%d", ptr->val);
+        inorder(ptr->right_child);
+    }
+}
+
+void test(){
+    bool ht_inc;
+    int data, option;
+    struct node *root = (struct node*)malloc(sizeof(struct node));
+    root = NULL;
+    while (1)
+    {
+        printf("1. Insert");
+        printf("2. Display");
+        printf("3. Quit");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                printf("Enter the value to be inserted: ");
+                scanf("%d", &data);
+                if(search(root, data) == NULL)
+                    root = insert(data, root, &ht_inc);
+                else
+                    printf("Duplicate val ignored");
+                break;
+            case 2:
+                if(root == NULL)
+                {
+                    printf("Tree is empty");
+                    continue;
+                }
+                printf("Tree is: ");
+                display(root, 1);
+                printf("\n");
+                printf("Inorder Traversal is: ");
+                inorder(root);
+                printf("\n");
+                break;
+            case 3:
+                exit(1);
+            default:
+                printf("Wrong option");
+        }
+
+    }
+}
+}}}
+
+
+===== 10.5 RED-BLACK TREEs =====
+
+
+
+
+

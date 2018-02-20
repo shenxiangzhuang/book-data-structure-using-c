@@ -1,0 +1,694 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-12T11:50:24+08:00
+
+====== Content ======
+Created 星期一 12 二月 2018
+
+===== 7.3 OPERATIONS ON A STACK[array] =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 3
+
+// init
+int st[MAX], top = -1;
+
+// operations
+void push(int st[], int val);
+int pop(int st[]);
+int peek(int st[]);
+
+// tools
+void display(int st[]);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+// operations
+void push(int st[], int val){
+    if(top == MAX -1)
+        printf("\n STACK OVERFLOW");
+    else
+    {
+        top++;
+        st[top] = val;
+    }
+}
+
+int pop(int st[]){
+    int val;
+    if(top == -1){
+        printf("\nSTACK UNDERFLOW");
+        return -1;
+    }
+    else{
+        val = st[top];
+        top--;
+        return val;
+    }
+}
+
+int peek(int st[]){
+    if(top == -1){
+        printf("\nSTACK IS EMPTY");
+        return -1;
+    } else{ return st[top];}
+}
+
+// tools
+void display(int st[]){
+    if(top == -1)
+        printf("\n STACK IS EMPTY");
+    else
+    {
+        for(int i=top; i>=0; i--)
+            printf("\n %d", st[i]);
+        printf("\n");
+    }
+}
+
+
+void test(){
+    int val, option;
+    do
+    {
+        printf("\n***MENU***");
+        printf("\n1. PUSH");
+        printf("\n2. POP");
+        printf("\n3. PEEK");
+        printf("\n4. DISPLAY");
+        printf("\n5. EXIT");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                printf("Enter the number to be pushed on stack: ");
+                scanf("%d", &val);
+                push(st, val);
+                break;
+            case 2:
+                val = pop(st);
+                if(val != -1)
+                    printf("\nThe value deleted from stack is: %d ", val);
+                break;
+            case 3:
+                val = peek(st);
+                if(val != -1)
+                    printf("\nThe value stored at top of the stack is: %d", val);
+                break;
+            case 4:
+                display(st);
+                break;
+        }
+    }while (option != 5);
+}
+
+
+}}}
+
+
+
+===== 7.4 LINKED REPRESENTATION OF STACKs =====
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct stack {
+    int data;
+    struct stack *next;
+};
+
+// init
+struct stack *top = NULL;
+
+// operations
+struct stack *push(struct stack *top, int val);
+
+struct stack *pop(struct stack *top);
+
+int peek(struct stack *top);
+
+// tools
+void display(struct stack *top);
+
+void test();
+
+int main() {
+    test();
+    return 0;
+}
+
+// operations
+struct stack *push(struct stack *top, int val) {
+    struct stack *new_stack;
+    new_stack = (struct stack *) malloc(sizeof(struct stack));
+    new_stack->data = val;
+    // have 0 stack
+    if (top == NULL) {
+        new_stack->next = NULL;
+        top = new_stack;
+        return top;
+    }
+    new_stack->next = top;
+    top = new_stack;
+    return top;
+}
+
+struct stack *pop(struct stack *top) {
+    // have 0 stack(check underflow)
+    if (top == NULL) {
+        printf("Empty already");
+        return top;
+    }
+    struct stack *temp = top;
+    top = top->next;
+    free(temp);
+    return top;
+}
+
+int peek(struct stack *top) {
+    // underflow check
+    if (top == NULL) {
+        printf("There is no stack");
+        return -1;
+    }
+    int val;
+    val = top->data;
+    return val;
+}
+
+// tools
+void display(struct stack *top) {
+    if (top == NULL) {
+        printf("Empty");
+    }
+    struct stack *ptr = top;
+    while (ptr != NULL) {
+        printf("%d ", ptr->data);
+        ptr = ptr->next;
+    }
+}
+
+void test() {
+    int val, option;
+    do {
+        printf("\n***MENU***");
+        printf("\n1. PUSH");
+        printf("\n2. POP");
+        printf("\n3. PEEK");
+        printf("\n4. DISPLAY");
+        printf("\n5. EXIT");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option) {
+            case 1:
+                printf("Enter the number to be pushed on stack: ");
+                scanf("%d", &val);
+                top = push(top, val);
+                break;
+            case 2:
+                top = pop(top);
+                break;
+            case 3:
+                val = peek(top);
+                if (val != -1)
+                    printf("\nThe value stored at top of the stack is: %d", val);
+                break;
+            case 4:
+                display(top);
+                break;
+        }
+    } while (option != 5);
+}
+
+
+}}}
+
+
+===== 7.6 MULTIPLE STACKS =====
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+# define MAX 10
+
+int stack[MAX], topA=-1, topB = MAX;
+void pushA(int val);
+void display_stackA();
+int popA();
+int peekA();
+
+void pushB(int val);
+void display_stackB();
+int popB();
+int peekB();
+
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+
+void test(){
+    int option, val;
+    do
+    {
+        printf("\n *****MENU*****");
+        printf("\n 1. PUSH IN STACK A");
+        printf("\n 2. PUSH IN STACK B");
+        printf("\n 3. POP FROM STACK A");
+        printf("\n 4. POP FROM STACK B");
+        printf("\n 5. DISPLAY STACK A");
+        printf("\n 6. DISPLAY STACK B");
+        printf("\n 7. PEEK OF STACK B");
+        printf("\n 8. PEEK OF STACK B");
+        printf("\n 9. EXIT");
+        printf("\n Enter your choice: ");
+        scanf("%d",&option);
+        switch(option)
+        {
+            case 1: printf("\n Enter the value to push on Stack A : ");
+                scanf("%d",&val);
+                pushA(val);
+                break;
+            case 2: printf("\n Enter the value to push on Stack B : ");
+                scanf("%d",&val);
+                pushB(val);
+                break;
+            case 3: val=popA();
+                if(val != -999)
+                    printf("\n The value popped from Stack A = %d",val);
+                break;
+            case 4: val=popB();
+                if(val!=-999)
+                    printf("\n The value popped from Stack B = %d",val);
+                break;
+            case 5: printf("\n The contents of Stack A are : \n");
+                display_stackA();
+                break;
+            case 6: printf("\n The contents of Stack B are : \n");
+                display_stackB();
+                break;
+            case 7:
+                val = peekA();
+                if(val != -999)
+                    printf("\n The peek of stack A: %d", val);
+                break;
+            case 8:
+                val = peekB();
+                if(val != -999)
+                    printf("\n The peek of stack B: %d", val);
+                break;
+        }
+    }while(option!=9);
+
+
+}
+
+void pushA(int val){
+    // check overflow
+    if(topA == topB-1){
+        printf("OVERFLOW");
+        return;
+    }
+    topA++;
+    stack[topA] = val;
+}
+
+void display_stackA(){
+    if(topA == -1){
+        printf("Empty!");
+    }
+    else
+    {
+        for (int i = topA; i >= 0; i--) {
+            printf("%d ", stack[i]);
+        }
+    }
+    printf("\n");
+}
+
+int popA(){
+    // underflow check
+    if(topA == -1){
+        printf("UNDERFLOW");
+        return -999;
+    }
+    int val;
+    val = stack[topA];
+    topA--;
+    return val;
+
+}
+int peekA(){
+    if(topA == -1){
+        printf("stack A is empty");
+        return -999;
+    }
+    return stack[topA];
+}
+
+void pushB(int val){
+    // overflow check
+    if(topB == topA+1){
+        printf("OVERFLOW");
+    }
+    else
+    {
+        topB--;
+        stack[topB] = val;
+    }
+}
+
+void display_stackB(){
+    if(topB == MAX){
+        printf("stack B is empty");
+    }
+    else
+    {
+        for (int i = topB; i <= MAX-1; ++i) {
+            printf("%d ", stack[i]);
+        }
+    }
+}
+int popB(){
+    if(topB == MAX){
+        printf("UNDERFLOW");
+        return -999;
+    }
+    int val;
+    val = stack[topB];
+    topB++;
+    return val;
+}
+int peekB(){
+    if(topB == MAX){
+        printf("stack B is empty");
+        return -999;
+    }
+    return stack[topB];
+}
+
+}}}
+
+
+===== 7.7 APPLICATIONS OF STACKS =====
+
+==== 7.7.1 Reversing a List ====
+感觉这里完全没有必要用stack, 随便写了下...
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void readArray(int array[], int n);
+void showArray(int array[], int n);
+void inverseArray(int array[], int n);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void test(){
+    int n;
+    n = 3;
+    int arr[n];
+    readArray(arr, n);
+    showArray(arr, n);
+    inverseArray(arr, n);
+    showArray(arr, n);
+}
+
+void readArray(int array[], int n){
+    printf("Enter array data\n");
+    for (int i = 0; i < n; ++i) {
+        printf("Enter data: ");
+        scanf("%d", &array[i]);
+    }
+}
+
+void showArray(int array[], int n){
+    for (int i = 0; i < n; ++i) {
+        printf("%d ", array[i]);
+    }
+    printf("\n");
+}
+
+void inverseArray(int array[], int n){
+    int arr[n], j=0;
+    for (int i = n-1; i >=0 ; --i) {
+        arr[j] = array[i];
+        j++;
+    }
+    for (int k = 0; k < n; ++k) {
+        array[k] = arr[k];
+    }
+}
+
+}}}
+
+
+==== 7.7.2 Implementing Parentheses Checker ====
+
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 20
+
+void push(char stack[], char c, int *top);
+char pop(char stack[], int *top);
+void check(char exp[]);
+
+int main(){
+    char exp[MAX];
+    printf("Enter expression: ");
+    fgets(exp, MAX, stdin);
+    check(exp);
+    return 0;
+}
+
+void push(char stack[], char c, int *top){
+    // overflow check
+    if(*top == MAX-1){
+        printf("OVERFLOW");
+        return;
+    }
+    (*top)++;
+    stack[*top] = c;
+}
+
+char pop(char stack[], int *top){
+    // check underflow
+    if(*top == -1){
+        printf("UNDERFLOW");
+        return -999;
+    }
+    char c = stack[*top];
+    (*top)--;
+    return c;
+}
+void check(char exp[]){
+    int top = -1;
+    int i = 0, flag = 1;
+    char stack[MAX], temp;
+    while (exp[i] != 0){
+        if(exp[i] == '(' || exp[i] == '[' || exp[i] == '{')
+            push(stack, exp[i], &top);
+        if(exp[i] == ')' || exp[i] == ']' || exp[i] == '}'){
+            if(top == -1)
+                flag = 0;
+            else
+            {
+                temp = pop(stack, &top);
+                if(exp[i] == ')' && (temp == ']' || temp == '}'))
+                    flag = 0;
+                if(exp[i] == ']' && (temp == ')' || temp == '}'))
+                    flag = 0;
+                if(exp[i] == '}' && (temp == ')' || temp == ']'))
+                    flag = 0;
+            }
+        }
+        i++;
+    }
+    if(top >= 0)
+        flag = 0;
+    if (flag == 1)
+        printf("Valid Expression");
+    else
+        printf("Invalid Expression");
+}
+}}}
+
+
+
+==== 7.7.4 Recursion ====
+
+=== Factorial ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int fac(int n){
+    if(n < 0){
+        printf("n should be nonnegative");
+        return -1;
+    }
+    if( n == 0 || n == 1)
+        return 1;
+    else
+        return n*fac(n-1);
+}
+
+int main(){
+    int n, result;
+    printf("Enter a integer: ");
+    scanf("%d", &n);
+    result = fac(n);
+    printf("%d! = %d", n, result);
+    return 0;
+}
+}}}
+
+
+=== Greatest Common Divisor ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int GCD(int a, int b){
+    int rem;
+    rem = a % b;
+    if(rem == 0)
+        return b;
+    else
+        return GCD(b, rem);
+}
+
+int main(){
+    int a, b, result;
+    printf("Enter the two numbers: ");
+    scanf("%d %d", &a, &b);
+    result = GCD(a, b);
+    printf("The GCD of %d and %d is %d", a, b, result);
+    return 0;
+}
+}}}
+
+
+=== Finding Exponents ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+float exp(float x, int y){
+    if(y >= 0){
+        if(y == 0)
+            return 1;
+        else
+            return x*exp(x, y-1);
+    }
+    else
+    {
+        if(y == 0)
+            return 1;
+        else
+            return (1/x)*exp(x, y+1);
+    }
+}
+
+int main(){
+    float x, result;
+    int y;
+    printf("Enter the nums: ");
+    scanf("%f %d", &x, &y);
+    result = exp(x, y);
+    printf("%.3f^%d = %.3f", x, y, result);
+    return 0;
+}
+}}}
+
+
+=== The Fibonacci Series ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int fibnacci(int n){
+    if(n < 0){
+        printf("n should be nonnegative");
+        return -1;
+    }
+    if( n == 0)
+        return 0;
+    else if(n == 1)
+        return 1;
+    else
+        return fibnacci(n - 2) + fibnacci(n - 1);
+}
+
+int main(){
+    int n, result;
+    printf("Enter a integer: ");
+    scanf("%d", &n);
+    for (int i = 0; i < n; ++i) {
+        result = fibnacci(i);
+        printf("%d ", result);
+    }
+    return 0;
+}
+}}}
+
+
+=== Tail recursion ===
+
+Reference: [[https://stackoverflow.com/questions/33923/what-is-tail-recursion|What is tail recursion?]]
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int fac(int n, int res) {
+    if (n == 1)
+        return res;
+    else
+        return fac(n - 1, n * res);
+}
+
+int main() {
+    int n, result;
+    printf("Enter a integer: ");
+    scanf("%d", &n);
+    result = fac(n, 1);
+    printf("%d! = %d", n, result);
+    return 0;
+}
+}}}
+
+
+=== Tower of Hanoi ===
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+void move(int n, char source, char dest, char spare){
+    if(n==1)
+        printf("Move from %c to %c\n", source, dest);
+    else
+    {
+        move(n-1, source, spare, dest);
+        move(1, source, dest, spare);
+        move(n-1, spare, dest, source);
+    }
+}
+
+int main(){
+    int n;
+    printf("Enter the number of rings: ");
+    scanf("%d", &n);
+    move(n, 'A', 'C', 'B');
+    return 0;
+}
+}}}
+
+
+

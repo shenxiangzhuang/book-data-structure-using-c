@@ -1,0 +1,686 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-20T12:08:13+08:00
+
+====== Content ======
+Created 星期二 20 二月 2018
+
+===== 13.5.2  Adjacency List Representation =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int vertrx;
+    struct node *next;
+};
+
+struct node *gnode;
+void createGraph(struct node *Adj[], int no_of_nodes);
+void displayGraph(struct node *adj[], int no_of_nodes);
+void deleteGraph(struct node *adj[], int no_of_nodes);
+
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void createGraph(struct node *Adj[], int no_of_nodes){
+    struct node *new_node, *last;
+    int n, val;
+    for (int i = 0; i < no_of_nodes; ++i) {
+        last = NULL;
+        printf("Enter the number of the neighbours of %d: ", i);
+        scanf("%d", &n);
+        for (int j = 1; j <= n; ++j) {
+            printf("Enter the neighbour %d of %d: ", j, i);
+            scanf("%d", &val);
+            new_node = (struct node*)malloc(sizeof(struct node));
+            new_node->vertrx = val;
+            new_node->next = NULL;
+            if(Adj[i] == NULL)  // Adj[i]仅仅记录list首元素的位置，后面使用last来不断拼接
+                Adj[i] = new_node;
+            else
+                last->next = new_node;
+            last = new_node;
+        }
+    }
+}
+void displayGraph(struct node *Adj[], int no_of_nodes){
+    struct node *ptr;
+    for (int i = 0; i < no_of_nodes; ++i) {
+        ptr = Adj[i];
+        printf("\nThe neighboirs of node %d are:", i);
+        while (ptr != NULL)
+        {
+            printf("%d ", ptr->vertrx);
+            ptr = ptr->next;
+        }
+    }
+}
+void deleteGraph(struct node *Adj[], int no_of_nodes){
+    struct node *temp, *ptr;
+    for (int i = 0; i <= no_of_nodes; ++i) {
+        ptr = Adj[i];
+        while (ptr != NULL)
+        {
+            temp = ptr;
+            ptr = ptr->next;
+            free(temp);
+        }
+        Adj[i] = NULL;
+    }
+}
+
+void test(){
+    struct node *Adj[10];
+    int no_of_nodes;
+    printf("Enter the number of nodes in G: ");
+    scanf("%d", &no_of_nodes);
+    for (int i = 0; i < no_of_nodes; ++i) {
+        Adj[i] = NULL;
+    }
+    createGraph(Adj, no_of_nodes);
+    printf("The graph is: ");
+    displayGraph(Adj, no_of_nodes);
+    deleteGraph(Adj, no_of_nodes);
+}
+}}}
+
+运行测试：
+{{{code: lang="c" linenumbers="True"
+Enter the number of nodes in G: 3
+Enter the number of the neighbours of 0: 1
+Enter the neighbour 1 of 0: 2
+Enter the number of the neighbours of 1: 2
+Enter the neighbour 1 of 1: 0
+Enter the neighbour 2 of 1: 2
+Enter the number of the neighbours of 2: 1
+Enter the neighbour 1 of 2: 1
+The graph is: 
+The neighboirs of node 0 are:2 
+The neighboirs of node 1 are:0 2 
+The neighboirs of node 2 are:1 
+
+}}}
+
+
+
+
+===== 13.6 GRAPH TRAVERSAL ALGORITHMS =====
+{{./pasted_image.png}}
+
+==== breadth-first search algorithm ====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 5
+
+void breadth_first_search(int adj[][MAX], int visited[], int start)
+{
+    int queue[MAX];
+    int rear, front;
+    // front与rear分别控制出列与入列
+    front = rear = -1;
+    queue[++rear] = start; // 首个节点入列
+    visited[start] = 1;  // 标记首个节点成为已经查看过的状态
+    // 整个过程算是一个不断出列与入列的过程，每次出列一个(front+1)，入列N个(rear+N)（N是未visit的相连的点的个数）
+    // 开始的时候，一般有N>=1,而在visit所有节点后，N=0(rear保持不变)，而front会一直递增并打印节点信息，直至和rear相等时
+    // 已经打印除了所有节点的信息，于是退出循环，结束遍历。
+    while (rear != front)
+    {
+        start = queue[++front];
+        printf("%c ", start+65);  // 打印队列最前端节点的信息
+        for (int i = 0; i < MAX; ++i) {
+            // 若visited[i] != 0,也就是说明已经visit过此节点
+            if(adj[start][i] == 1 && visited[i] == 0)  // 有相连的新（未visit）节点则入列
+            {
+                queue[++rear] = i;  // 入列
+                visited[i] = 1;  // 标记为已visit的状态
+            }
+        }
+    }
+}
+
+// test: 0 1 0 1 0 1 0 1 1 0 0 1 0 0 1 1 1 0 0 1 0 0 1 1 0
+int main(){
+    // visited数组包含了所有节点的状态
+    int visited[MAX] = {0};
+    int adj[MAX][MAX];
+    printf("Enter the adjacency matrix: ");
+    for (int i = 0; i < MAX; ++i) {
+        for (int j = 0; j < MAX; ++j) {
+            scanf("%d", &adj[i][j]);
+        }
+    }
+    breadth_first_search(adj, visited, 0);
+    return 0;
+}
+}}}
+
+
+==== Depth-first Search Algorithm ====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 5
+
+void depth_first_search(int adj[][MAX], int visited[], int start)
+{
+    int stack[MAX];
+    int top = -1, i;
+    printf("%c->", start+65);
+    visited[start] = 1;
+    stack[++top] = start;
+    while (top != -1)
+    {
+        start = stack[top];
+        for (i = 0; i < MAX; ++i) {
+            if(adj[start][i] && visited[i] == 0)
+            {
+                stack[++top] = i;
+                visited[i] = 1;
+                if(start == MAX-1)  // 最后一个不打印箭头
+                    printf("%c", i+65);
+                else
+                    printf("%c->", i+65);
+                break;
+            }
+        }
+        // 当visit所有的节点之后，每次for循环都不会被break掉，所以都满足i==MAX，
+        // 所以top会不断递减，直至退出循环
+        if(i == MAX)
+            top--;
+    }
+}
+
+// test: 0 1 0 1 0 1 0 1 1 0 0 1 0 0 1 1 1 0 0 1 0 0 1 1 0
+int main()
+{
+    int adj[MAX][MAX];
+    int visited[MAX] = {0}, i, j;
+    printf("Enter the adjacency matrix: ");
+    for (i = 0; i < MAX; i++)
+        for(j = 0; j < MAX; j++)
+            scanf("%d", &adj[i][j]);
+    printf("DFS Traversal: ");
+    depth_first_search(adj, visited, 0);
+    return 0;
+}
+}}}
+
+
+===== 13.7 TOPOLOGICAL SORTING =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define MAX 10
+
+int n, adj[MAX][MAX];
+int front=-1, rear=-1, queue[MAX];
+
+void create_grapg(void);
+void display();
+void insert_queue(int);
+int delete_queue(void);
+int find_indegree(int);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void create_grapg(void){
+    int i, max_edges, org, dest;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+    max_edges = n*(n-1);
+    for (i = 0; i < max_edges; ++i) {
+        printf("Enter edge %d(0 to quit): ", i+1);
+        scanf("%d %d", &org, &dest);
+        if((org == 0) && dest == 0)
+            break;
+        if(org > n || dest > n || org <= 0 || dest <= 0)
+        {
+            printf("Invalid edge");
+            i--;
+        }
+        else
+            adj[org][dest] = 1;
+    }
+}
+
+void display(){
+    for (int i = 0; i <= n; ++i) {
+        printf("\n");
+        for (int j = 0; j <= n; ++j) {
+            printf("%3d", adj[i][j]);
+        }
+    }
+}
+
+void insert_queue(int node){
+    if(rear == MAX-1)
+        printf("OVERFLOW");
+    else
+    {
+        if(front == -1)  // if queue is initially empty
+            front = 0;
+        queue[++rear] = node;
+    }
+}
+
+int delete_queue(void){
+    int del_node;
+    if(front == -1 || rear == -1)
+    {
+        printf("UNDERFLOW");
+        return -1;
+    }
+    else
+    {
+        del_node = queue[front++];
+        return del_node;
+    }
+}
+
+int find_indegree(int node){
+    int in_deg = 0;
+    for (int i = 0; i <= n; ++i) {
+        if(adj[i][node] == 1)
+            in_deg++;
+    }
+    return in_deg;
+}
+void test(){
+    int j = 0, I, node, del_node;
+    int topsort[MAX], indeg[MAX];
+    create_grapg();
+    printf("The adjmatrix is: ");
+    display();
+    // find the in-degree of each node
+    for (node = 1; node <= n; ++node) {
+        indeg[node] = find_indegree(node);
+        if(indeg[node] == 0)
+            insert_queue(node);
+    }
+    while (front <= rear)  // continue loop until queue is empty
+    {
+        del_node = delete_queue();
+        topsort[j] = del_node;  // add the deleted node to topsort
+        j++;
+        // delete the del_node edges
+        for (node = 1; node <= n; ++node) {
+            if(adj[del_node][node] == 1)
+            {
+                adj[del_node][node] = 0;
+                indeg[node] = indeg[node] - 1;
+                if(indeg[node] == 0)
+                    insert_queue(node);
+            }
+        }
+    }
+    printf("\nThe topological sorting can be given as: \n");
+    for (node = 0; node < j; ++node) {
+        printf("%d ", topsort[node]);
+    }
+}
+
+
+}}}
+
+
+===== 13.8 SHORTEST PATH ALGORITHMS =====
+
+==== 13.8.3 Write a program which finds the cost of a minimum spanning tree ====
+书上的代码看着略伤...找到另一个比较好理解的，参考[[https://www.thecrazyprogrammer.com/2014/03/kruskals-algorithm-for-finding-minimum-cost-spanning-tree.html|Kruskal’s Algorithm in C [Program & Algorithm]]] 和 [[https://www.youtube.com/watch?v=5xosHRdxqHA|YouTube]]
+{{{code: lang="c" linenumbers="True"
+#include<stdio.h>
+
+#define MAX 30
+
+typedef struct edge {
+    int u, v, w;
+} edge;
+
+typedef struct edgelist {
+    edge data[MAX];
+    int n;
+} edgelist;
+
+edgelist elist;
+
+int G[MAX][MAX], n;
+edgelist spanlist;
+
+void kruskal();
+
+int find(int belongs[], int vertexno);
+
+void union1(int belongs[], int c1, int c2);
+
+void sort();
+
+void print();
+
+int main() {
+    int i, j, total_cost;
+
+    printf("\nEnter number of vertices:");
+
+    scanf("%d", &n);
+
+    printf("\nEnter the adjacency matrix:\n");
+
+    for (i = 0; i < n; i++)
+        for (j = 0; j < n; j++)
+            scanf("%d", &G[i][j]);
+
+    kruskal();
+    print();
+    return 0;
+}
+
+void kruskal() {
+    int belongs[MAX], i, j, cno1, cno2;
+    elist.n = 0;
+    // 建立图
+    // 仅看对角线以下部分（无向图用矩阵表示时所呈现的对称性）
+    for (i = 1; i < n; i++)
+        for (j = 0; j < i; j++) {
+            if (G[i][j] != 0) {
+                elist.data[elist.n].u = i;
+                elist.data[elist.n].v = j;
+                elist.data[elist.n].w = G[i][j];
+                elist.n++;
+            }
+        }
+
+    sort();
+
+    // 初始化，没有端点被union(没有edge被加入MST)
+    for (i = 0; i < n; i++)
+        belongs[i] = i;
+
+    spanlist.n = 0;
+
+    for (i = 0; i < elist.n; i++) {
+        cno1 = find(belongs, elist.data[i].u);
+        cno2 = find(belongs, elist.data[i].v);
+
+        if (cno1 != cno2) {
+            spanlist.data[spanlist.n] = elist.data[i];
+            spanlist.n = spanlist.n + 1;
+            union1(belongs, cno1, cno2);
+        }
+    }
+}
+
+int find(int belongs[], int vertexno) {
+    return (belongs[vertexno]);
+}
+
+// 将已经选出的edges的两个端点设置为一个值，使得（cno1 != cno2）变为False
+// 保证不被重复加入到最小生成树
+void union1(int belongs[], int c1, int c2) {
+    int i;
+
+    for (i = 0; i < n; i++)
+        if (belongs[i] == c2)
+            belongs[i] = c1;
+}
+
+// 使得权重小的edges在前面
+void sort() {
+    int i, j;
+    edge temp;
+
+    for (i = 1; i < elist.n; i++)
+        for (j = 0; j < elist.n - 1; j++)
+            if (elist.data[j].w > elist.data[j + 1].w) {
+                temp = elist.data[j];
+                elist.data[j] = elist.data[j + 1];
+                elist.data[j + 1] = temp;
+            }
+}
+
+void print() {
+    int i, cost = 0;
+
+    for (i = 0; i < spanlist.n; i++) {
+        printf("\n%d\t%d\t%d", spanlist.data[i].u, spanlist.data[i].v, spanlist.data[i].w);
+        cost = cost + spanlist.data[i].w;
+    }
+
+    printf("\n\nCost of the spanning tree=%d", cost);
+}
+}}}
+
+
+{{{code: lang="c" linenumbers="True"
+Enter number of vertices:6
+
+Enter the adjacency matrix:
+0 3 1 6 0 0 3 0 5 0 3 0 1 5 0 5 6 4 6 0 5 0 0 2 0 3 6 0 0 6 0 0 4 2 6 0
+
+2	0	1
+5	3	2
+1	0	3
+4	1	3
+5	2	4
+
+Cost of the spanning tree=13
+}}}
+
+
+
+==== 13.8.4 Dijkstra’s Algorithm ====
+pass
+
+==== 13.8.5 Warshall’s Algorithm ====
+{{{code: lang="c" linenumbers="True"
+
+#include <stdio.h>
+
+void read(int mat[5][5], int n);
+void display(int mat[5][5], int n);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void read(int mat[5][5], int n)
+{
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            printf("mat[%d][%d] = ", i, j);
+            scanf("%d", &mat[i][j]);
+        }
+    }
+}
+
+void display(int mat[5][5], int n){
+    for (int i = 0; i < n; ++i) {
+        printf("\n");
+        for (int j = 0; j < n; ++j) {
+            printf("%d ", mat[i][j]);
+        }
+    }
+}
+
+
+void test(){
+    int adj[5][5], P[5][5], n, i, j, k;
+    printf("Enter the number of nodes in the graph: ");
+    scanf("%d", &n);
+    printf("Enter the adjacency matrix: \n");
+    read(adj, n);
+    printf("The adjacency matrix is: ");
+    display(adj, n);
+    for (i=0; i<n; i++)
+    {
+        for(j=0; j<n; j++)
+        {
+            if(adj[i][j] == 0)
+                P[i][j] = 0;
+            else
+                P[i][j] = 1;
+        }
+    }
+    for(k=0; k<n; k++)
+    {
+        for (i = 0; i < n; ++i) {
+            for (j = 0; j < n; ++j)
+                P[i][j] = P[i][j] | (P[i][k] & P[k][j]);
+        }
+    }
+    printf("\nThe Path Matrix is: ");
+    display(P, n);
+}
+}}}
+
+
+运行测试：
+
+{{{code: lang="c" linenumbers="True"
+Enter the number of nodes in the graph: 4
+Enter the adjacency matrix: 
+mat[0][0] = 0
+mat[0][1] = 1
+mat[0][2] = 1
+mat[0][3] = 0
+mat[1][0] = 0
+mat[1][1] = 0
+mat[1][2] = 1
+mat[1][3] = 1
+mat[2][0] = 0
+mat[2][1] = 0
+mat[2][2] = 0
+mat[2][3] = 1
+mat[3][0] = 1
+mat[3][1] = 1
+mat[3][2] = 0
+mat[3][3] = 0
+The adjacency matrix is: 
+0 1 1 0 
+0 0 1 1 
+0 0 0 1 
+1 1 0 0 
+The Path Matrix is: 
+1 1 1 1 
+1 1 1 1 
+1 1 1 1 
+1 1 1 1 
+}}}
+
+
+==== 13.8.6 Modified Warshall's Algorithm ====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+#define INFINITY 9999
+
+void read(int mat[5][5], int n);
+void display(int mat[5][5], int n);
+void test();
+
+int main(){
+    test();
+    return 0;
+}
+
+void read(int mat[5][5], int n)
+{
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            printf("mat[%d][%d] = ", i, j);
+            scanf("%d", &mat[i][j]);
+        }
+    }
+}
+
+void display(int mat[5][5], int n){
+    for (int i = 0; i < n; ++i) {
+        printf("\n");
+        for (int j = 0; j < n; ++j) {
+            printf("%d ", mat[i][j]);
+        }
+    }
+}
+
+
+void test(){
+    int adj[5][5], Q[5][5], n, i, j, k;
+    printf("Enter the number of nodeds in the graph: ");
+    scanf("%d", &n);
+    printf("Enter the adjacency matrix: \n");
+    read(adj, n);
+    printf("The adjacency matrix is : ");
+    display(adj, n);
+    for(i=0; i<n; i++)
+    {
+        for(j = 0; j<n; j++)
+        {
+            if(adj[i][j] == 0)
+                Q[i][j] = INFINITY;
+            else
+                Q[i][j] = adj[i][j];
+        }
+    }
+    for(k=0; k<n; k++)
+    {
+        for(i=0; i<n; i++)
+        {
+            for(j=0; j<n; j++)
+            {
+                if(Q[i][j] <= Q[i][k] + Q[k][j])
+                    Q[i][j] = Q[i][j];
+                else
+                    Q[i][j] = Q[i][k] + Q[k][j];
+            }
+        }
+    }
+    printf("\nThe Path matrix (after modified): ");
+    display(Q, n);
+}
+}}}
+
+
+运行测试：
+{{{code: lang="c" linenumbers="True"
+Enter the number of nodeds in the graph: 4
+Enter the adjacency matrix: 
+mat[0][0] = 0
+mat[0][1] = 3
+mat[0][2] = 3
+mat[0][3] = 0
+mat[1][0] = 0
+mat[1][1] = 0
+mat[1][2] = 0
+mat[1][3] = 1
+mat[2][0] = 0
+mat[2][1] = 3
+mat[2][2] = 0
+mat[2][3] = 0
+mat[3][0] = 2
+mat[3][1] = 0
+mat[3][2] = 5
+mat[3][3] = 0
+The adjacency matrix is : 
+0 3 3 0 
+0 0 0 1 
+0 3 0 0 
+2 0 5 0 
+The Path matrix (after modified): 
+6 3 3 4 
+3 6 6 1 
+6 3 9 4 
+2 5 5 6
+}}}
+
+
+
+
+
