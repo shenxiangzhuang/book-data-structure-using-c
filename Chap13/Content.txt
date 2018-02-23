@@ -476,7 +476,9 @@ Cost of the spanning tree=13
 
 
 ==== 13.8.4 Dijkstra’s Algorithm ====
-pass
+
+
+
 
 ==== 13.8.5 Warshall’s Algorithm ====
 {{{code: lang="c" linenumbers="True"

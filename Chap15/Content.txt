@@ -1,0 +1,147 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-22T17:29:25+08:00
+
+====== Content ======
+Created 星期四 22 二月 2018
+
+===== 15.5 COLLISIONS =====
+{{{code: lang="c" linenumbers="True"
+#include <stdio.h>
+
+int ht[10], i, found = 0, key;
+void insert_val();
+void search_val();
+void delete_val();
+void display();
+void test();
+
+int main()
+{
+    test();
+    return 0;
+}
+
+void insert_val(){
+    int val;
+    printf("Enter the element to be inserted: ");
+    scanf("%d", &val);
+    key = (val % 10) - 1;
+    if(ht[key] == -1)
+        ht[key] = val;
+    else
+    {
+
+        // 0 ~ [key-1]处搜素空闲位置
+        for (i = 0; i < key; ++i) {
+            if(ht[i] == -1)
+            {
+                ht[i] = val;
+                break;
+            }
+        // [key+1] ~ MAX(hear is 10)处搜索空闲位置
+        for (i = key+1; i < 10; ++i) {
+            if(ht[i] == -1)
+            {
+                ht[i] = val;
+                break;
+            }
+        }
+
+        }
+    }
+}
+
+void search_val(){
+    int val, flag = 0;
+    printf("Enter the element to be searched: ");
+    scanf("%d", &val);
+    key = (val % 10) - 1;
+    if(ht[key] == val)
+        flag = 1;
+    else
+    {
+        for(i = key+1; i < 10; i++)
+        {
+            if (ht[i] == val)
+            {
+                flag = 1;
+                key = i;
+                break;
+            }
+        }
+    }
+    if(flag == 0)
+    {
+        for(i = 0; i<key; i++)
+        {
+            if(ht[i] == val)
+            {
+                flag = 1;
+                key = i;
+                break;
+            }
+        }
+    }
+    if(flag == 1)
+    {
+        found = 1;
+        printf("%d is at pos %d", val, key);
+    }
+    else
+    {
+        key = -1;
+        printf("%d not in hash table", val);
+    }
+}
+
+void delete_val(){
+    search_val();
+    if(found == 1)
+    {
+        if(key != -1)
+        {
+            printf("The element deleted is %d", ht[key]);
+            ht[key] = -1;
+        }
+    }
+}
+
+void display(){
+    for (i = 0; i < 10; ++i) {
+        printf("%d ", ht[i]);
+    }
+}
+
+void test(){
+    int option;
+    // to initialize every element as '-1'
+    for (int i = 0; i < 10; ++i)
+        ht[i] = -1;
+    do
+    {
+        printf( "\nMENU \n1.Insert \n2.Search \n3.Delete \n4.Display \n5.Exit");
+        printf("\nEnter your option: ");
+        scanf("%d", &option);
+        switch (option)
+        {
+            case 1:
+                insert_val();
+                break;
+            case 2:
+                search_val();
+                break;
+            case 3:
+                delete_val();
+                break;
+            case 4:
+                display();
+                break;
+        }
+    }while (option != 5);
+}
+}}}
+
+
+
+

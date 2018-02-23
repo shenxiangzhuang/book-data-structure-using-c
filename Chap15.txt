@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-22T17:29:20+08:00
+
+====== Chap15 ======
+
+===== Hashing and Collision =====
+Created 星期四 22 二月 2018
+

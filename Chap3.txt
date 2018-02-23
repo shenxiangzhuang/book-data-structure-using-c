@@ -3,5 +3,7 @@ Wiki-Format: zim 0.4
 Creation-Date: 2018-01-01T21:05:31+08:00
 
 ====== Chap3 ======
+
+===== Arrays =====
 Created 星期一 01 一月 2018
 

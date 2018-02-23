@@ -3,5 +3,7 @@ Wiki-Format: zim 0.4
 Creation-Date: 2018-02-03T14:19:55+08:00
 
 ====== Chap6 ======
+
+===== Linked Lists =====
 Created 星期六 03 二月 2018
 
