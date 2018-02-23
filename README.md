@@ -1,2 +1,2 @@
 # DataStructureUsingC
-Some codes and notes(edit by Zim) in Data Structure Using C
+Some codes and notes(edit by Zim) in *Data Structures Using C*
